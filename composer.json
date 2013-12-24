@@ -1,0 +1,22 @@
+{
+    "name": "shemahmforash/thisdayinmusic",
+    "type": "project",
+    "description": "A webservice with information of what happened on this day in music history.",
+    "keywords": ["rest", "music", "thisdayin", "api"],
+    "license": ["GPL-3.0+"],
+    "minimum-stability": "dev",
+    "authors": [
+        {
+            "name": "Carlos Rosão",
+            "homepage": "http://icdif.com"
+        }
+    ],
+    "require": {
+        "shemahmforash/thisdayin": "dev-master",
+        "doctrine/orm": "2.*",
+        "symfony/yaml": "2.*"
+    },
+    "autoload": {
+        "psr-0": {"": "src/"}
+    }
+}
