@@ -97,6 +97,14 @@ class Server {
             $events = $qb->getQuery()->getArrayResult();
         }
 
+        #output datetime object in a simplified way
+        $callback = function ( $date ) {
+                    $date['date'] = $date['date']->format('Y-m-d');
+                    return $date;
+                };
+
+        $events = array_map($callback, $events);
+
         header('Content-type: application/json');
         echo json_encode($events);
     }
