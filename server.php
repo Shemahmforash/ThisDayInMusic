@@ -6,6 +6,8 @@ class Server {
     private $actions = array('birth', 'death', 'event');
     private $entityManager;
 
+    const VERSION = 0.1;
+
     public function __construct( $entityManager ) {
         $this->entityManager = $entityManager;
         $this->start();
@@ -105,8 +107,29 @@ class Server {
 
         $events = array_map($callback, $events);
 
+        $this->output($events);
+    }
+
+    private function output ($results, $error = null ) {
         header('Content-type: application/json');
-        echo json_encode($events);
+
+        if( $error ) {
+            $code = $error['code'];
+            $status = $error['status'];
+        }
+        else {
+            $code = 0;
+            $status = "Success";
+        }
+
+        $output = array(
+            "response" => array(
+                    "status" => array("version" => Server::VERSION, "code" => $code, "status" => $status ),
+                    "events" => $results,
+                )
+        );
+
+        echo json_encode($output);
     }
 }
 
