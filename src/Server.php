@@ -25,8 +25,6 @@ class Server {
 
         $this->process( $method, $action, $path['query']);
 
-#        var_dump( $uri, $method, $action, $path['query'], $this->actions );
-#        die();
     }
 
     private function process($method, $action, $query) {
@@ -114,16 +112,18 @@ class Server {
         if( $error ) {
             $code = $error['code'];
             $status = $error['status'];
+            $events = array();
         }
         else {
             $code = 0;
             $status = "Success";
+            $events = $results;
         }
 
         $output = array(
             "response" => array(
                     "status" => array("version" => Server::VERSION, "code" => $code, "status" => $status ),
-                    "events" => $results,
+                    "events" => $events,
                 )
         );
 
