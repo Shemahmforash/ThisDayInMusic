@@ -78,6 +78,7 @@ class Server {
                 $event->setDate( $date );
                 $event->setDescription( $ev['description'] ); 
                 $event->setType( $ev['type'] ); 
+                $event->setSource( $dim->getSource() ); 
                 $this->entityManager->persist( $event );
             }
 
