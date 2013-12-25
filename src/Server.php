@@ -23,13 +23,13 @@ class Server {
 
         $action = array_shift($paths);
 
-        $this->process( $method, $action, $path['query']);
+        $this->process( $method, $action, $_GET );
     }
 
-    private function process($method, $action, $query) {
+    private function process($method, $action, $parameters ) {
         switch($method) {
             case 'GET':
-                $this->get($action, $query);
+                $this->get($action, $parameters );
                 break;
             default:
                 header('HTTP/1.1 405 Method Not Allowed');
@@ -38,7 +38,7 @@ class Server {
         }
     }
 
-    private function getEvents( $query = null ) {
+    private function getEvents( $parameters = null ) {
         #TODO: get events for the date in query string
         $now = new DateTime("now");
 
@@ -88,7 +88,7 @@ class Server {
     }
 
     //find out if there are events in the database for this day
-    private function existEvents( $query ) {
+    private function existEvents( $parameters ) {
         #TODO: get events for the date in query string
         $now = new DateTime("now");
 
@@ -106,11 +106,40 @@ class Server {
 
     }
 
-    private function get($action = null, $query = null) {
+    /*
+        Pagination
+            page => (default 0)
+            results per page (default 10)
+            total (default 10)l
+        Filters
+            type
+            published
+        What to see
+            id
+            date
+            description
+            source
+            is_published
+            
+    */
+
+    private function sanitizeParameters( &$parameters ) {
+
+/*
+        foreach ($parameters as $key => $value) {
+            print "$key = $value\n";
+        }
+  */      
+    }
+
+    private function get($action = null, $parameters = null) {
+
+        $this->sanitizeParameters( $parameters );
+
         $eventRepository = $this->entityManager->getRepository('Event');
 
-        //$events = $this->getEvents( $query );
-        $existEvents = $this->existEvents( $query );
+        //$events = $this->getEvents( $parameters );
+        $existEvents = $this->existEvents( $parameters );
 
         //no events for today in the database, get them from site and set them in the database
         if( !$existEvents ) {
@@ -118,7 +147,7 @@ class Server {
         }
 
         //get events from the db
-        $events = $this->getEvents( $query );
+        $events = $this->getEvents( $parameters );
 
         #output datetime object in a simplified way
         $callback = function ( $date ) {
@@ -153,5 +182,6 @@ class Server {
 
         echo json_encode($output);
     }
+
 }
 ?>
