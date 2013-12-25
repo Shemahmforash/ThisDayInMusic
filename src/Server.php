@@ -39,8 +39,7 @@ class Server {
         }
     }
 
-    private function get($action = null, $query = null) {
-        $eventRepository = $this->entityManager->getRepository('Event');
+    private function getEvents( $query = null ) {
 
         #TODO: get events for the date in query string
         $now = new DateTime("now");
@@ -56,44 +55,51 @@ class Server {
                 ));
         $events = $qb->getQuery()->getArrayResult();
 
-        //no events for today, get them
-        if( !count( $events) ) {
-            $dim = new ThisDayIn\Music();
-            $evs = $dim->getEvents();
+        return $events;
+    }
 
-            foreach($evs as $ev ) {
-                $date   = new DateTime( $ev['date'] );
+    //gets the events from the site and saves them on db
+    private function setEvents() {
+        $dim = new ThisDayIn\Music();
+        $evs = $dim->getEvents();
 
-                if( $ev['type'] !== 'Event') {
-                    $ev['description'] = sprintf('%s, %s', $ev['name'], $ev['description']);
-                }
+        foreach($evs as $ev ) {
+            $date   = new DateTime( $ev['date'] );
 
-                //unlike the death events, the birth events do not include in the text information
-                if( $ev['type'] === 'Birth') {
-                    $ev['description'] = sprintf('%s, %s was born', $ev['name'], $ev['description']);
-                }
-
-                //set current event
-                $event = new Event(); 
-                $event->setDate( $date );
-                $event->setDescription( $ev['description'] ); 
-                $event->setType( $ev['type'] ); 
-                $event->setSource( $dim->getSource() ); 
-                $this->entityManager->persist( $event );
+            if( $ev['type'] !== 'Event') {
+                $ev['description'] = sprintf('%s, %s', $ev['name'], $ev['description']);
             }
 
-            //insert all events to db
-            if( count( $evs ) )
-                $this->entityManager->flush();
+            //unlike the death events, the birth events do not include in the text information
+            if( $ev['type'] === 'Birth') {
+                $ev['description'] = sprintf('%s, %s was born', $ev['name'], $ev['description']);
+            }
 
-            $qb = $this->entityManager->createQueryBuilder();
-            $qb->select('e')
-                ->from('Event', 'e')
-                ->where('e.date like :date')
-                ->setParameters(array(
-                        'date' => '%' . $now->format('m-d')
-                    ));
-            $events = $qb->getQuery()->getArrayResult();
+            //set current event
+            $event = new Event(); 
+            $event->setDate( $date );
+            $event->setDescription( $ev['description'] ); 
+            $event->setType( $ev['type'] ); 
+            $event->setSource( $dim->getSource() ); 
+            $this->entityManager->persist( $event );
+        }
+
+        //insert all events to db
+        if( count( $evs ) )
+            $this->entityManager->flush();
+    }
+
+    private function get($action = null, $query = null) {
+        $eventRepository = $this->entityManager->getRepository('Event');
+
+        $events = $this->getEvents( $query );
+
+        //no events for today in the database, get them from site
+        if( !count( $events) ) {
+
+            $this->setEvents();
+
+            $events = $this->getEvents( $query );
         }
 
         #output datetime object in a simplified way
