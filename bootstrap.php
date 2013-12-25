@@ -15,8 +15,11 @@
     // database configuration parameters
     $conn = array(
             'dbname'   => 'DayIn',
+//            'dbname'   => 'icdifc_DayIn', //prd env
             'user'     => 'root',
+//            'user'     => 'icdifc_DayIn', //prd env
             'password' => 'forsakenart',
+//            'password' => 's]@v!-}akCB&', // prd env
 #            'password' => 'ZGKU.Bq!',
             'host'     => 'localhost',
             'driver'   => 'pdo_mysql',
@@ -24,11 +27,3 @@
 
     // obtaining the entity manager
     $entityManager = EntityManager::create($conn, $config);
-
-    //twitter credentials
-    $twitter = array(
-            'consumerKey'       => 'eaGnBo5pB5fztuH43PWEg',
-            'consumerSecret'    => 'ASEfFrBKubGpCupgueFwGxP73i2bK7WydYrmnYcc',
-            'accessToken'       => '1509987306-ONotq4g9TRlOiAVEv5tCUvqHw1LDl7N2FXN5sP5',
-            'accessTokenSecret' => 'rwwkTXDcz7ujX9QYuEVeUDzn2g8WwT3xJRV0t1k6U',
-        );

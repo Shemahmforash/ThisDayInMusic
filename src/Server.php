@@ -24,7 +24,6 @@ class Server {
         $action = array_shift($paths);
 
         $this->process( $method, $action, $path['query']);
-
     }
 
     private function process($method, $action, $query) {
@@ -40,7 +39,6 @@ class Server {
     }
 
     private function getEvents( $query = null ) {
-
         #TODO: get events for the date in query string
         $now = new DateTime("now");
 
@@ -89,25 +87,44 @@ class Server {
             $this->entityManager->flush();
     }
 
+    //find out if there are events in the database for this day
+    private function existEvents( $query ) {
+        #TODO: get events for the date in query string
+        $now = new DateTime("now");
+
+        //TODO: change this query builder to criteria matching
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('count(e.id)')
+            ->from('Event', 'e')
+            ->where('e.date like :date')
+            ->setParameters(array(
+                    'date' => '%' . $now->format('m-d')
+                ));
+        $count = $qb->getQuery()->getSingleScalarResult();
+
+        return $count ? 1 : 0;
+
+    }
+
     private function get($action = null, $query = null) {
         $eventRepository = $this->entityManager->getRepository('Event');
 
-        $events = $this->getEvents( $query );
+        //$events = $this->getEvents( $query );
+        $existEvents = $this->existEvents( $query );
 
-        //no events for today in the database, get them from site
-        if( !count( $events) ) {
-
+        //no events for today in the database, get them from site and set them in the database
+        if( !$existEvents ) {
             $this->setEvents();
-
-            $events = $this->getEvents( $query );
         }
+
+        //get events from the db
+        $events = $this->getEvents( $query );
 
         #output datetime object in a simplified way
         $callback = function ( $date ) {
                     $date['date'] = $date['date']->format('Y-m-d');
                     return $date;
                 };
-
         $events = array_map($callback, $events);
 
         $this->output($events);
