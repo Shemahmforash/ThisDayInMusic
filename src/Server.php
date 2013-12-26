@@ -40,8 +40,6 @@ class Server {
 
     private function getEvents( $parameters = null ) {
         #TODO: get events for the date in query string
-        $now = new DateTime("now");
-
         /*find events in the same day/month as today*/
         //TODO: change this query builder to criteria matching
         $qb = $this->entityManager->createQueryBuilder();
@@ -49,7 +47,7 @@ class Server {
             ->from('Event', 'e')
             ->where('e.date like :date')
             ->setParameters(array(
-                    'date' => '%' . $now->format('m-d')
+                    'date' => '%' . $parameters['date']->format('m-d')
                 ));
         $events = $qb->getQuery()->getArrayResult();
 
@@ -57,8 +55,8 @@ class Server {
     }
 
     //gets the events from the site and saves them on db
-    private function setEvents() {
-        $dim = new ThisDayIn\Music();
+    private function setEvents( $date ) {
+        $dim = new ThisDayIn\Music($date->format('j'), $date->format('F'));
         $evs = $dim->getEvents();
 
         foreach($evs as $ev ) {
@@ -89,27 +87,23 @@ class Server {
 
     //find out if there are events in the database for this day
     private function existEvents( $parameters ) {
-        #TODO: get events for the date in query string
-        $now = new DateTime("now");
-
         //TODO: change this query builder to criteria matching
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('count(e.id)')
             ->from('Event', 'e')
             ->where('e.date like :date')
             ->setParameters(array(
-                    'date' => '%' . $now->format('m-d')
+                    'date' => '%' . $parameters['date']->format('m-d')
                 ));
         $count = $qb->getQuery()->getSingleScalarResult();
 
         return $count ? 1 : 0;
-
     }
 
     /*
         Pagination
             page => (default 0)
-            results per page (default 10)
+            results per page (default 15)
             total (default 10)l
         Filters
             type
@@ -118,18 +112,33 @@ class Server {
             id
             date
             description
+            type
             source
             is_published
             
     */
 
     private function sanitizeParameters( &$parameters ) {
+        if( !$parameters['limit'] || $parameters['limit'] > 15 || $parameters['limit'] < 1 )
+            $parameters['limit'] = 15;
 
-/*
-        foreach ($parameters as $key => $value) {
-            print "$key = $value\n";
+        if(!$parameters['page'] || $parameters['page'] < 0 )
+            $parameters['page'] = 0;
+
+        if( !$parameters['show'])
+            $parameters['show'] = 'date, description, type';
+
+        if( $parameters['day'] && $parameters['month']) {
+            $month = $parameters['month'];
+            $day   = $parameters['day'];
+            $date = new DateTime("2013-$month-$day");
+
+            $parameters['date'] = $date;
         }
-  */      
+        else {
+            $now = new DateTime("now");
+            $parameters['date'] = $now;
+        }
     }
 
     private function get($action = null, $parameters = null) {
@@ -143,7 +152,7 @@ class Server {
 
         //no events for today in the database, get them from site and set them in the database
         if( !$existEvents ) {
-            $this->setEvents();
+            $this->setEvents( $parameters['date'] );
         }
 
         //get events from the db
