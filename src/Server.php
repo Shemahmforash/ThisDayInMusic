@@ -13,7 +13,7 @@ class Server {
     private $offset;
     private $results;
     private $fields;
-
+    private $type;
     private $date;
 
     const VERSION = 0.1;
@@ -48,38 +48,84 @@ class Server {
     }
 
     private function process($method, $action, $parameters ) {
-        switch($method) {
-            case 'GET':
-                $this->get($action, $parameters );
-                break;
-            default:
-                header('HTTP/1.1 405 Method Not Allowed');
-                header('Allow: GET');
-                break;
+        if( $method === 'GET' ) {
+            $this->get($action, $parameters );
+        }
+        else {
+            header('HTTP/1.1 405 Method Not Allowed');
+            header('Allow: GET');
         }
     }
 
     private function getEvents() {
-        //build the columns to show from the parameters
-        $fields = array();
-        foreach ( $this->fields as $toShow ) {
-            array_push($fields, "e." . trim($toShow) );
-        }
-        $what = join(", ", $fields);
+        $query = $this->buildQuery();
+
+        $what  = $query['what'];
+        $where = $query['where'];
 
         //TODO: change this query builder to criteria matching
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select($what)
+        $qb->select( $what )
             ->from('Event', 'e')
-            ->where('e.date like :date')
+            ->where( $where['query'] )
             ->setFirstResult( $this->offset )
             ->setMaxResults( $this->results )
-            ->setParameters(array(
-                    'date' => '%' . $this->date->format('m-d')
-                ));
+            ->setParameters( $where['parameters'] );
         $events = $qb->getQuery()->getArrayResult();
 
         return $events;
+    }
+
+    private function buildQuery( $what = null ) {
+        //build the columns to show from the parameters
+        if( !$what ) {
+            $fields = array();
+            foreach ( $this->fields as $toShow ) {
+                array_push($fields, "e." . trim($toShow) );
+            }
+            $what = join(", ", $fields);
+        }
+
+        //build the where part from the parameters
+        $where['parameters'] = array(
+                    'date' => '%' . $this->date->format('m-d')
+                );
+
+        $where['query'] = array();
+        if( $this->type ) {
+            $where['parameters']['type'] = "%$this->type%";
+        }
+
+        foreach( $where['parameters'] as $key => $parameter ) {
+            array_push($where['query'], "e.$key like :$key");
+        }
+
+        $where['query'] = join(" and ", $where['query']);
+
+        return array (
+                'what'  => $what,
+                'where' => $where
+            );
+        
+    }
+
+    //find out if there are events in the database for this day
+    private function totalEvents() {
+        
+        $query = $this->buildQuery( "count(e.id)");
+
+        $what  = $query['what'];
+        $where = $query['where'];
+
+        //TODO: change this query builder to criteria matching
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select( $what )
+            ->from('Event', 'e')
+            ->where( $where['query'] )
+            ->setParameters( $where['parameters'] );
+        $count = $qb->getQuery()->getSingleScalarResult();
+
+        return $count;
     }
 
     //gets the events from the site and saves them on db
@@ -115,21 +161,6 @@ class Server {
         }
     }
 
-    //find out if there are events in the database for this day
-    private function totalEvents() {
-        //TODO: change this query builder to criteria matching
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('count(e.id)')
-            ->from('Event', 'e')
-            ->where('e.date like :date')
-            ->setParameters(array(
-                    'date' => '%' . $this->date->format('m-d')
-                ));
-        $count = $qb->getQuery()->getSingleScalarResult();
-
-        return $count;
-    }
-
     /*
         Pagination
             offset => (default 0)
@@ -151,12 +182,14 @@ class Server {
     //TODO: accept filters in the parameters
     private function sanitizeParameters( $parameters ) {
 
+        //check valid parameters
         foreach ($parameters as $key => $value) {
             if(!in_array($key, $this->config['parameters'])) {
                 return array("code" => -3, "status" => "Parameters '$key' is not accepted.");     
             }
         }
 
+        /*Check parameters' value*/
         if(isset($parameters['results']) && preg_match( "/\d+/", $parameters['results'] ) && $parameters['results'] < $this->config['pagination']['max_results'] && $parameters['results'] > 0 ) {
             $this->results = $parameters['results'];
         }
@@ -187,6 +220,10 @@ class Server {
             $date = new DateTime("2013-$month-$day");
 
             $this->date = $date;
+        }
+
+        if( isset($parameters['type'] ) && preg_match("/\w+/", $parameters['type'] ) ) {
+            $this->type = $parameters['type'];
         }
     }
 
