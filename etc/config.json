@@ -4,9 +4,17 @@
         "offset"      : 0,
         "max_results" : 50
     },
-    "fields" : [
-        "date",
-        "description",
-        "type"
-    ]
+    "fields" : {
+        "default":  [
+            "date",
+            "description",
+            "type"
+        ],
+        "accepted" : [
+            "date",
+            "description",
+            "type",
+            "is_published"
+        ]
+    }
 }

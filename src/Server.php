@@ -26,7 +26,7 @@ class Server {
         $this->date    = new DateTime("now");
         $this->results = $this->config['pagination']['results'];
         $this->offset  = $this->config['pagination']['offset'];
-        $this->fields  = $this->config['fields'];
+        $this->fields  = $this->config['fields']['default'];
 
         $this->entityManager = $entityManager;
         $this->start();
@@ -150,6 +150,7 @@ class Server {
 
     //TODO: accept filters in the parameters
     private function sanitizeParameters( $parameters ) {
+
         if(isset($parameters['results']) && preg_match( "/\d+/", $parameters['results'] ) && $parameters['results'] < $this->config['pagination']['max_results'] && $parameters['results'] > 0 ) {
             $this->results = $parameters['results'];
         }
@@ -158,8 +159,17 @@ class Server {
             $this->offset = $parameters['offset'];
         }
 
-        if( isset($parameters['fields'] ) && preg_match("/\w+/", $parameters['fields']) ) {
-            $this->fields = explode(",", $parameters['fields']);
+        if( isset($parameters['fields'] ) && is_array( $parameters['fields'] ) ) {
+
+            $fields = array();
+            foreach( $parameters['fields'] as $field) {
+                if( in_array($field, $this->config['fields']['accepted'] ) && !in_array($field, $fields) ) {
+                    array_push( $fields, $field);     
+                }
+
+                $this->fields = $fields;
+            }
+
         }
 
         if( isset($parameters['day']) && preg_match( "/\d\d/", $parameters['day'] ) && isset($parameters['month']) && preg_match( "/\d\d/", $parameters['month'] ) ) {
