@@ -1,22 +1,32 @@
 <?php
 
 class Server {
-    private $actions = array('birth', 'death', 'event');
+
+//    private $actions = array('birth', 'death', 'event');
+
+    //database access
     private $entityManager;
 
-    private $pagination_limit = 10;
-    private $pagination_page  = 15;
-    private $default_fields   = array("date", "description", "type");
+    //config with default values for parameters
+    private $config;
+
+    private $offset;
+    private $results;
+    private $fields;
+
+    private $date;
 
     const VERSION = 0.1;
 
-    public function __construct( $entityManager, $config = null ) {
-        //config values overwrite object attributes
-        if( $config ) {
-            $this->pagination_limit = $config['pagination']['limit'];
-            $this->pagination_page  = $config['pagination']['page'];
-            $this->default_fields   = $config['fields'];
-        }
+    public function __construct( $entityManager, $config ) {
+        $this->config = $config;
+
+
+        //assume default values
+        $this->date    = new DateTime("now");
+        $this->results = $this->config['pagination']['results'];
+        $this->offset  = $this->config['pagination']['offset'];
+        $this->fields  = $this->config['fields'];
 
         $this->entityManager = $entityManager;
         $this->start();
@@ -49,25 +59,23 @@ class Server {
         }
     }
 
-    private function getEvents( $parameters = null ) {
+    private function getEvents() {
         //build the columns to show from the parameters
-        foreach ( $parameters['show'] as &$toShow ) {
-            $toShow = "e." . trim($toShow);
+        $fields = array();
+        foreach ( $this->fields as $toShow ) {
+            array_push($fields, "e." . trim($toShow) );
         }
-        $what = join(", ", $parameters['show']);
-
-        //TODO: should one receive just the offset from the parameters?
-        $offset = $parameters['page'] * $parameters['limit'];
+        $what = join(", ", $fields);
 
         //TODO: change this query builder to criteria matching
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select($what)
             ->from('Event', 'e')
             ->where('e.date like :date')
-            ->setFirstResult( $offset )
-            ->setMaxResults( $parameters['limit'] )
+            ->setFirstResult( $this->offset )
+            ->setMaxResults( $this->results )
             ->setParameters(array(
-                    'date' => '%' . $parameters['date']->format('m-d')
+                    'date' => '%' . $this->date->format('m-d')
                 ));
         $events = $qb->getQuery()->getArrayResult();
 
@@ -75,14 +83,14 @@ class Server {
     }
 
     //gets the events from the site and saves them on db
-    private function setEvents( $date ) {
-        $dim = new ThisDayIn\Music($date->format('j'), $date->format('F'));
+    private function setEvents() {
+        $dim = new ThisDayIn\Music($this->date->format('j'), $this->date->format('F'));
         $evs = $dim->getEvents();
 
         foreach($evs as $ev ) {
             $date   = new DateTime( $ev['date'] );
 
-            if( $ev['type'] !== 'Event') {
+            if( $ev['type'] === 'Death') {
                 $ev['description'] = sprintf('%s, %s', $ev['name'], $ev['description']);
             }
 
@@ -101,19 +109,21 @@ class Server {
         }
 
         //insert all events to db
-        if( count( $evs ) )
+        if( count( $evs ) ) {
             $this->entityManager->flush();
+            $this->totalEvents = $this->totalEvents();
+        }
     }
 
     //find out if there are events in the database for this day
-    private function totalEvents( $parameters ) {
+    private function totalEvents() {
         //TODO: change this query builder to criteria matching
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('count(e.id)')
             ->from('Event', 'e')
             ->where('e.date like :date')
             ->setParameters(array(
-                    'date' => '%' . $parameters['date']->format('m-d')
+                    'date' => '%' . $this->date->format('m-d')
                 ));
         $count = $qb->getQuery()->getSingleScalarResult();
 
@@ -122,7 +132,7 @@ class Server {
 
     /*
         Pagination
-            page => (default 0)
+            offset => (default 0)
             results per page (default 15)
             total (default 10)l
         Filters
@@ -138,72 +148,66 @@ class Server {
             
     */
 
-    //TODO: improve the checking of the fiability of the parameters received
-    private function sanitizeParameters( &$parameters ) {
-        if(isset($parameters['limit']) && preg_match( "/\d+/", $parameters['limit'] ) ) {
-            if( $parameters['limit'] > 15 || $parameters['limit'] < 1 ) {
-                $parameters['limit'] = $this->pagination_limit;
-            }
-        }
-        else {
-            $parameters['limit'] = $this->pagination_limit;
+    //TODO: accept filters in the parameters
+    private function sanitizeParameters( $parameters ) {
+        if(isset($parameters['results']) && preg_match( "/\d+/", $parameters['results'] ) && $parameters['results'] < $this->config['pagination']['max_results'] && $parameters['results'] > 0 ) {
+            $this->results = $parameters['results'];
         }
 
-        if(isset($parameters['page']) && preg_match( "/\d+/", $parameters['page'] ) ) {
-            if( $parameters['page'] < 0 ) {
-                $parameters['page'] = $this->pagination_page;
-            }
-        }
-        else {
-            $parameters['page'] = $this->pagination_page;
+        if(isset($parameters['offset']) && preg_match( "/\d+/", $parameters['offset'] ) && $parameters['offset'] > 0 ) {
+            $this->offset = $parameters['offset'];
         }
 
-        if( !isset($parameters['show']))
-            $parameters['show'] = $this->default_fields;
-        else {
-            $parameters['show'] = explode(",", $parameters['show']);    
+        if( isset($parameters['fields'] ) && preg_match("/\w+/", $parameters['fields']) ) {
+            $this->fields = explode(",", $parameters['fields']);
         }
 
-        if( isset($parameters['day']) && isset($parameters['month'])) {
+        if( isset($parameters['day']) && preg_match( "/\d\d/", $parameters['day'] ) && isset($parameters['month']) && preg_match( "/\d\d/", $parameters['month'] ) ) {
             $month = $parameters['month'];
             $day   = $parameters['day'];
             $date = new DateTime("2013-$month-$day");
 
-            $parameters['date'] = $date;
-        }
-        else {
-            $now = new DateTime("now");
-            $parameters['date'] = $now;
+            $this->date = $date;
         }
     }
 
     private function get($action = null, $parameters = null) {
-
         $this->sanitizeParameters( $parameters );
+
+        $this->totalEvents = $this->totalEvents();
 
         $eventRepository = $this->entityManager->getRepository('Event');
 
-        $totalEvents = $this->totalEvents( $parameters );
-
         //no events for today in the database, get them from site and set them in the database
-        if( !$totalEvents ) {
-            $this->setEvents( $parameters['date'] );
+        if( !$this->totalEvents ) {
+            $this->setEvents();
+        }
+
+        //error
+        if( $this->offset > $this->totalEvents) {
+            return $this->output( null, array("code" => -1, "status" => "Offset ($this->offset) is larger than the total results ($this->totalEvents)") );
         }
 
         //get events from the db
-        $events = $this->getEvents( $parameters );
+        $events = $this->getEvents();
+
+        if( !$events ) {
+            return $this->output( null, array("code" => -2, "status" => "Error finding the events for this day. Please try again in a few moments.") );
+        }
 
         #output datetime object in a simplified way
-        $callback = function ( $date ) {
-                    $date['date'] = $date['date']->format('Y-m-d');
-                    return $date;
-                };
-        $events = array_map($callback, $events);
+        if( in_array( 'date', $this->fields ) ) {
+            $callback = function ( $date ) {
+                        $date['date'] = $date['date']->format('Y-m-d');
+                        return $date;
+                    };
+            $events = array_map($callback, $events);
+        }
 
-        $this->output($events, $totalEvents);
+        $this->output($events);
     }
 
-    private function output ($results, $totalEvents, $error = null ) {
+    private function output ($results, $error = null ) {
         header('Content-type: application/json');
 
         if( $error ) {
@@ -221,7 +225,7 @@ class Server {
             "response" => array(
                     "status" => array("version" => Server::VERSION, "code" => $code, "status" => $status ),
                     "events" => $events,
-                    "pagination" => array("total" => $totalEvents, "page" => $this->pagination_page, "results" => $this->pagination_limit ),
+                    "pagination" => $error ? array() : array("total" => $this->totalEvents, "offset" => $this->offset, "results" => $this->results ),
                 )
         );
 
