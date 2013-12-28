@@ -56,11 +56,16 @@ class Server {
         }
         $what = join(", ", $parameters['show']);
 
+        //TODO: should one receive just the offset from the parameters?
+        $offset = $parameters['page'] * $parameters['limit'];
+
         //TODO: change this query builder to criteria matching
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select($what)
             ->from('Event', 'e')
             ->where('e.date like :date')
+            ->setFirstResult( $offset )
+            ->setMaxResults( $parameters['limit'] )
             ->setParameters(array(
                     'date' => '%' . $parameters['date']->format('m-d')
                 ));
@@ -101,7 +106,7 @@ class Server {
     }
 
     //find out if there are events in the database for this day
-    private function existEvents( $parameters ) {
+    private function totalEvents( $parameters ) {
         //TODO: change this query builder to criteria matching
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('count(e.id)')
@@ -112,7 +117,7 @@ class Server {
                 ));
         $count = $qb->getQuery()->getSingleScalarResult();
 
-        return $count ? 1 : 0;
+        return $count;
     }
 
     /*
@@ -178,11 +183,10 @@ class Server {
 
         $eventRepository = $this->entityManager->getRepository('Event');
 
-        //$events = $this->getEvents( $parameters );
-        $existEvents = $this->existEvents( $parameters );
+        $totalEvents = $this->totalEvents( $parameters );
 
         //no events for today in the database, get them from site and set them in the database
-        if( !$existEvents ) {
+        if( !$totalEvents ) {
             $this->setEvents( $parameters['date'] );
         }
 
@@ -196,10 +200,10 @@ class Server {
                 };
         $events = array_map($callback, $events);
 
-        $this->output($events);
+        $this->output($events, $totalEvents);
     }
 
-    private function output ($results, $error = null ) {
+    private function output ($results, $totalEvents, $error = null ) {
         header('Content-type: application/json');
 
         if( $error ) {
@@ -217,6 +221,7 @@ class Server {
             "response" => array(
                     "status" => array("version" => Server::VERSION, "code" => $code, "status" => $status ),
                     "events" => $events,
+                    "pagination" => array("total" => $totalEvents, "page" => $this->pagination_page, "results" => $this->pagination_limit ),
                 )
         );
 
