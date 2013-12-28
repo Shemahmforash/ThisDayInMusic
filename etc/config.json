@@ -16,5 +16,8 @@
             "type",
             "is_published"
         ]
-    }
+    },
+    "parameters": [
+        "results", "offset", "day", "month", "fields" 
+    ]
 }

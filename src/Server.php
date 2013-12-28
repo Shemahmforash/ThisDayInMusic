@@ -151,6 +151,12 @@ class Server {
     //TODO: accept filters in the parameters
     private function sanitizeParameters( $parameters ) {
 
+        foreach ($parameters as $key => $value) {
+            if(!in_array($key, $this->config['parameters'])) {
+                return array("code" => -3, "status" => "Parameters '$key' is not accepted.");     
+            }
+        }
+
         if(isset($parameters['results']) && preg_match( "/\d+/", $parameters['results'] ) && $parameters['results'] < $this->config['pagination']['max_results'] && $parameters['results'] > 0 ) {
             $this->results = $parameters['results'];
         }
@@ -166,10 +172,13 @@ class Server {
                 if( in_array($field, $this->config['fields']['accepted'] ) && !in_array($field, $fields) ) {
                     array_push( $fields, $field);     
                 }
+                else {
+                    return array("code" => -4, "status" => "Field '$field' is not accepted.");     
+                }
 
-                $this->fields = $fields;
             }
-
+            if( count( $fields ) )
+                $this->fields = $fields;
         }
 
         if( isset($parameters['day']) && preg_match( "/\d\d/", $parameters['day'] ) && isset($parameters['month']) && preg_match( "/\d\d/", $parameters['month'] ) ) {
@@ -182,7 +191,11 @@ class Server {
     }
 
     private function get($action = null, $parameters = null) {
-        $this->sanitizeParameters( $parameters );
+        $error = $this->sanitizeParameters( $parameters );
+
+        if( $error ) {
+            return $this->output( null, $error );     
+        }
 
         $this->totalEvents = $this->totalEvents();
 
