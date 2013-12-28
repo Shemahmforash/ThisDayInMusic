@@ -50,11 +50,15 @@ class Server {
     }
 
     private function getEvents( $parameters = null ) {
-        #TODO: get events for the date in query string
-        /*find events in the same day/month as today*/
+        //build the columns to show from the parameters
+        foreach ( $parameters['show'] as &$toShow ) {
+            $toShow = "e." . trim($toShow);
+        }
+        $what = join(", ", $parameters['show']);
+
         //TODO: change this query builder to criteria matching
         $qb = $this->entityManager->createQueryBuilder();
-        $qb->select('e')
+        $qb->select($what)
             ->from('Event', 'e')
             ->where('e.date like :date')
             ->setParameters(array(
@@ -129,8 +133,9 @@ class Server {
             
     */
 
+    //TODO: improve the checking of the fiability of the parameters received
     private function sanitizeParameters( &$parameters ) {
-        if( preg_match( "/\d+/", $parameters['limit'] ) ) {
+        if(isset($parameters['limit']) && preg_match( "/\d+/", $parameters['limit'] ) ) {
             if( $parameters['limit'] > 15 || $parameters['limit'] < 1 ) {
                 $parameters['limit'] = $this->pagination_limit;
             }
@@ -139,13 +144,22 @@ class Server {
             $parameters['limit'] = $this->pagination_limit;
         }
 
-        if(!$parameters['page'] || $parameters['page'] < 0 )
+        if(isset($parameters['page']) && preg_match( "/\d+/", $parameters['page'] ) ) {
+            if( $parameters['page'] < 0 ) {
+                $parameters['page'] = $this->pagination_page;
+            }
+        }
+        else {
             $parameters['page'] = $this->pagination_page;
+        }
 
-        if( !$parameters['show'])
-            $parameters['show'] = join(", ", $this->default_fields );
+        if( !isset($parameters['show']))
+            $parameters['show'] = $this->default_fields;
+        else {
+            $parameters['show'] = explode(",", $parameters['show']);    
+        }
 
-        if( $parameters['day'] && $parameters['month']) {
+        if( isset($parameters['day']) && isset($parameters['month'])) {
             $month = $parameters['month'];
             $day   = $parameters['day'];
             $date = new DateTime("2013-$month-$day");
