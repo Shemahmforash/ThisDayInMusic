@@ -4,9 +4,20 @@ class Server {
     private $actions = array('birth', 'death', 'event');
     private $entityManager;
 
+    private $pagination_limit = 10;
+    private $pagination_page  = 15;
+    private $default_fields   = array("date", "description", "type");
+
     const VERSION = 0.1;
 
-    public function __construct( $entityManager ) {
+    public function __construct( $entityManager, $config = null ) {
+        //config values overwrite object attributes
+        if( $config ) {
+            $this->pagination_limit = $config['pagination']['limit'];
+            $this->pagination_page  = $config['pagination']['page'];
+            $this->default_fields   = $config['fields'];
+        }
+
         $this->entityManager = $entityManager;
         $this->start();
     }
@@ -119,14 +130,20 @@ class Server {
     */
 
     private function sanitizeParameters( &$parameters ) {
-        if( !$parameters['limit'] || $parameters['limit'] > 15 || $parameters['limit'] < 1 )
-            $parameters['limit'] = 15;
+        if( preg_match( "/\d+/", $parameters['limit'] ) ) {
+            if( $parameters['limit'] > 15 || $parameters['limit'] < 1 ) {
+                $parameters['limit'] = $this->pagination_limit;
+            }
+        }
+        else {
+            $parameters['limit'] = $this->pagination_limit;
+        }
 
         if(!$parameters['page'] || $parameters['page'] < 0 )
-            $parameters['page'] = 0;
+            $parameters['page'] = $this->pagination_page;
 
         if( !$parameters['show'])
-            $parameters['show'] = 'date, description, type';
+            $parameters['show'] = join(", ", $this->default_fields );
 
         if( $parameters['day'] && $parameters['month']) {
             $month = $parameters['month'];
