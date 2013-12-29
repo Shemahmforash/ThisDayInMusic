@@ -12,6 +12,7 @@ class Server {
     private $fields;
     private $type;
     private $date;
+    private $tweeted;
 
     const VERSION = 0.1;
 
@@ -34,19 +35,19 @@ class Server {
         $method = $_SERVER['REQUEST_METHOD'];
 
         $path = parse_url( $uri );
+        $arguments = preg_replace( "/^\//", "", $path['path']);
 
-        $paths = explode('/', $path['path']);
-        array_shift( $paths );//ignore empty entry
-
-        $action = array_shift($paths);
-
-        $this->process( $method, $action, $_GET );
+        $this->process( $method, $arguments, $_GET );
     }
 
-    private function process($method, $action, $parameters ) {
+    private function process($method, $path, $parameters ) {
         if( $method === 'GET' ) {
-            $this->get($action, $parameters );
+            $this->get($path, $parameters );
         }
+        else if( $method === 'PUT' ) {
+            $this->put( $path );
+        }
+
         #TODO: allow the 'put' method to receive data to update the tweeted status and the video status (both fields yet to be added to the db)
         else {
             header('HTTP/1.1 405 Method Not Allowed');
@@ -91,6 +92,9 @@ class Server {
         $where['query'] = array();
         if( $this->type ) {
             $where['parameters']['type'] = "%$this->type%";
+        }
+        if( $this->tweeted ) {
+            $where['parameters']['tweeted'] = "$this->tweeted";
         }
 
         foreach( $where['parameters'] as $key => $parameter ) {
@@ -165,14 +169,14 @@ class Server {
             total (default 10)l
         Filters
             type
-            published
+            tweeted
         What to see
             id
             date
             description
             type
             source
-            is_published
+            tweeted
             
     */
 
@@ -218,12 +222,32 @@ class Server {
             $this->date = $date;
         }
 
+        /*Filters*/
         if( isset($parameters['type'] ) && preg_match("/\w+/", $parameters['type'] ) ) {
             $this->type = $parameters['type'];
         }
+
+        if( isset($parameters['tweeted'] ) && preg_match("/[1|0]/", $parameters['tweeted'] ) ) {
+            $this->tweeted = $parameters['tweeted'];
+        }
     }
 
-    private function get($action = null, $parameters = null) {
+    private function put( $parameters ) {
+
+        $data = json_decode(file_get_contents('php://input'));
+
+        if (is_null($data)) {
+            header('HTTP/1.1 400 Bad Request');
+            return;
+        }
+        
+    }
+
+    private function get($path, $parameters = null) {
+        if( $path ) {
+            return $this->output( null, array("code" => -5, "status" => "Invalid path '$path' for HTTP GET method") );
+        }
+
         $error = $this->sanitizeParameters( $parameters );
 
         if( $error ) {
@@ -282,12 +306,23 @@ class Server {
             $events = $results;
         }
 
+        $response = array(
+                "status" => array("version" => Server::VERSION, "code" => $code, "status" => $status ),
+            );
+        if( !$error ) {
+            $response['events'] = $events;
+            $response['pagination'] = array("total" => intval($this->totalEvents), "offset" => $this->offset, "results" => $this->results );
+        }
+
         $output = array(
+            'response' => $response
+        /*
             "response" => array(
                     "status" => array("version" => Server::VERSION, "code" => $code, "status" => $status ),
                     "events" => $events,
                     "pagination" => $error ? array() : array("total" => intval($this->totalEvents), "offset" => $this->offset, "results" => $this->results ),
                 )
+            */
         );
 
         echo json_encode($output);

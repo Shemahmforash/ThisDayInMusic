@@ -14,10 +14,11 @@
             "date",
             "description",
             "type",
-            "is_published"
+            "tweeted",
+            "id"
         ]
     },
     "parameters": [
-        "results", "offset", "day", "month", "fields", "type" 
+        "results", "offset", "day", "month", "fields", "type", "tweeted"  
     ]
 }

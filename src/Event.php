@@ -35,7 +35,7 @@ class Event {
     protected $source;
 
     /** @Column(type="boolean") **/
-    protected $is_published = 0;
+    protected $tweeted = 0;
 
     public function getId() {
         return $this->id;
@@ -73,11 +73,11 @@ class Event {
         $this->source = $source;
     }
 
-    public function getIsPublished() {
-        return $this->is_published;
+    public function getTweeted() {
+        return $this->tweeted;
     }
 
-    public function setIsPublished($is_published) {
-        $this->is_published = $is_published;
+    public function setTweeted($tweeted) {
+        $this->tweeted = $tweeted;
     }
 }
