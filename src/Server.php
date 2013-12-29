@@ -48,8 +48,6 @@ class Server {
         else if( $method === 'PUT' ) {
             $this->put( $path );
         }
-
-        #TODO: allow the 'put' method to receive data to update the tweeted status and the video status (both fields yet to be added to the db)
         else {
             header('HTTP/1.1 405 Method Not Allowed');
             header('Allow: GET');
@@ -303,9 +301,8 @@ class Server {
         //get events from the db
         $events = $this->getEvents();
 
-        //TODO: no error here, just no events found
         if( !$events ) {
-            return $this->output( null, array("code" => -2, "status" => "Error finding the events for this day. Please try again in a few moments.") );
+            return $this->output( null, array("code" => -2, "status" => "No events found.") );
         }
 
         $this->output($events);
