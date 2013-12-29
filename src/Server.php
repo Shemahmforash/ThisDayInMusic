@@ -7,6 +7,7 @@ class Server {
     //config with default values for parameters
     private $config;
 
+    private $id;
     private $offset;
     private $results;
     private $fields;
@@ -95,6 +96,9 @@ class Server {
         }
         if( $this->tweeted ) {
             $where['parameters']['tweeted'] = "$this->tweeted";
+        }
+        if( $this->id ) {
+            $where['parameters']['id'] = "$this->id";
         }
 
         foreach( $where['parameters'] as $key => $parameter ) {
@@ -230,17 +234,40 @@ class Server {
         if( isset($parameters['tweeted'] ) && preg_match("/[1|0]/", $parameters['tweeted'] ) ) {
             $this->tweeted = $parameters['tweeted'];
         }
+
+        if( isset($parameters['id'] ) && preg_match("/\d+/", $parameters['id'] ) ) {
+            $this->id = $parameters['id'];
+        }
     }
 
     private function put( $parameters ) {
+        preg_match("/^event\/(?P<id>\d+)$/", $parameters, $match);
 
-        $data = json_decode(file_get_contents('php://input'));
+        if( !isset($match['id']) ) {
+            header('HTTP/1.1 400 Bad Request');
+            return;
+        }
 
+        //read the data in the put
+        $data = json_decode(file_get_contents('php://input'), true);
         if (is_null($data)) {
             header('HTTP/1.1 400 Bad Request');
             return;
         }
-        
+
+        //update database
+        $event = $this->entityManager->find("Event", (int)$match['id'] );
+        if( $event && isset( $data['tweeted'] ) ) {
+            $event->setTweeted( $data['tweeted'] );
+            $this->entityManager->flush();
+        }
+
+        //output the updated entry
+        $this->id = $match['id'];
+        array_push($this->fields, "tweeted", "id");
+        $events = $this->getEvents();
+
+        return $this->output( $events );
     }
 
     private function get($path, $parameters = null) {
@@ -276,17 +303,9 @@ class Server {
         //get events from the db
         $events = $this->getEvents();
 
+        //TODO: no error here, just no events found
         if( !$events ) {
             return $this->output( null, array("code" => -2, "status" => "Error finding the events for this day. Please try again in a few moments.") );
-        }
-
-        #output datetime object in a simplified way
-        if( in_array( 'date', $this->fields ) ) {
-            $callback = function ( $date ) {
-                        $date['date'] = $date['date']->format('Y-m-d');
-                        return $date;
-                    };
-            $events = array_map($callback, $events);
         }
 
         $this->output($events);
@@ -303,6 +322,16 @@ class Server {
         else {
             $code = 0;
             $status = "Success";
+
+            #output datetime object in a simplified way
+            if( in_array( 'date', $this->fields ) ) {
+                $callback = function ( $date ) {
+                            $date['date'] = $date['date']->format('Y-m-d');
+                            return $date;
+                        };
+                $results = array_map($callback, $results );
+            }
+
             $events = $results;
         }
 
@@ -311,18 +340,11 @@ class Server {
             );
         if( !$error ) {
             $response['events'] = $events;
-            $response['pagination'] = array("total" => intval($this->totalEvents), "offset" => $this->offset, "results" => $this->results );
+            $response['pagination'] = array("total" => intval($this->totalEvents), "offset" => $this->offset, "results" => count( $results ) );
         }
 
         $output = array(
             'response' => $response
-        /*
-            "response" => array(
-                    "status" => array("version" => Server::VERSION, "code" => $code, "status" => $status ),
-                    "events" => $events,
-                    "pagination" => $error ? array() : array("total" => intval($this->totalEvents), "offset" => $this->offset, "results" => $this->results ),
-                )
-            */
         );
 
         echo json_encode($output);

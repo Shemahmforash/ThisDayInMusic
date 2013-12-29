@@ -19,6 +19,6 @@
         ]
     },
     "parameters": [
-        "results", "offset", "day", "month", "fields", "type", "tweeted"  
+        "results", "offset", "day", "month", "fields", "type", "tweeted", "id" 
     ]
 }
