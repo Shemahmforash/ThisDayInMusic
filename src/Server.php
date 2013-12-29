@@ -1,9 +1,6 @@
 <?php
 
 class Server {
-
-//    private $actions = array('birth', 'death', 'event');
-
     //database access
     private $entityManager;
 
@@ -20,7 +17,6 @@ class Server {
 
     public function __construct( $entityManager, $config ) {
         $this->config = $config;
-
 
         //assume default values
         $this->date    = new DateTime("now");
@@ -51,6 +47,7 @@ class Server {
         if( $method === 'GET' ) {
             $this->get($action, $parameters );
         }
+        #TODO: allow the 'put' method to receive data to update the tweeted status and the video status (both fields yet to be added to the db)
         else {
             header('HTTP/1.1 405 Method Not Allowed');
             header('Allow: GET');
@@ -179,7 +176,6 @@ class Server {
             
     */
 
-    //TODO: accept filters in the parameters
     private function sanitizeParameters( $parameters ) {
 
         //check valid parameters
@@ -243,6 +239,11 @@ class Server {
             $this->setEvents();
         }
 
+        //TODO: should one maintain this?
+        if( $parameters['results'] === 'all' ) {
+            $this->results = $this->totalEvents;     
+        }
+
         //error
         if( $this->offset > $this->totalEvents) {
             return $this->output( null, array("code" => -1, "status" => "Offset ($this->offset) is larger than the total results ($this->totalEvents)") );
@@ -285,12 +286,11 @@ class Server {
             "response" => array(
                     "status" => array("version" => Server::VERSION, "code" => $code, "status" => $status ),
                     "events" => $events,
-                    "pagination" => $error ? array() : array("total" => $this->totalEvents, "offset" => $this->offset, "results" => $this->results ),
+                    "pagination" => $error ? array() : array("total" => intval($this->totalEvents), "offset" => $this->offset, "results" => $this->results ),
                 )
         );
 
         echo json_encode($output);
     }
-
 }
 ?>
