@@ -143,7 +143,7 @@ class Server {
                 $ev['description'] = sprintf('%s, %s', $ev['name'], $ev['description']);
             }
 
-            //unlike the death events, the birth events do not include in the text information
+            //unlike the death events, the birth events do not include enough information in the description.
             if( $ev['type'] === 'Birth') {
                 $ev['description'] = sprintf('%s, %s was born', $ev['name'], $ev['description']);
             }
@@ -216,6 +216,7 @@ class Server {
                 $this->fields = $fields;
         }
 
+        //the day/month each must be a pair of numbers
         if( isset($parameters['day']) && preg_match( "/\d\d/", $parameters['day'] ) && isset($parameters['month']) && preg_match( "/\d\d/", $parameters['month'] ) ) {
             $month = $parameters['month'];
             $day   = $parameters['day'];
@@ -308,6 +309,7 @@ class Server {
         $this->output($events);
     }
 
+    //output the webservice results
     private function output ($results, $error = null ) {
         header('Content-type: application/json');
 
