@@ -73,7 +73,7 @@ class Server {
         return $events;
     }
 
-    private function buildQuery( $what = null ) {
+    private function buildQuery( $what = null, $useParameters = 1 ) {
         //build the columns to show from the parameters
         if( !$what ) {
             $fields = array();
@@ -89,14 +89,16 @@ class Server {
                 );
 
         $where['query'] = array();
-        if( $this->type ) {
-            $where['parameters']['type'] = "%$this->type%";
-        }
-        if( isset( $this->tweeted ) ) {
-            $where['parameters']['tweeted'] = "$this->tweeted";
-        }
-        if( $this->id ) {
-            $where['parameters']['id'] = "$this->id";
+        if( $useParameters ) {
+            if( $this->type ) {
+                $where['parameters']['type'] = "%$this->type%";
+            }
+            if( isset( $this->tweeted ) ) {
+                $where['parameters']['tweeted'] = "$this->tweeted";
+            }
+            if( $this->id ) {
+                $where['parameters']['id'] = "$this->id";
+            }
         }
 
         foreach( $where['parameters'] as $key => $parameter ) {
@@ -115,9 +117,27 @@ class Server {
         
     }
 
+    private function existEvents() {
+        $what = "count(e.id)";
+
+        $query = $this->buildQuery( "count(e.id)", 0);
+
+        $what  = $query['what'];
+        $where = $query['where'];
+
+        //TODO: change this query builder to criteria matching
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select( $what )
+            ->from('Event', 'e')
+            ->where( $where['query'] )
+            ->setParameters( $where['parameters'] );
+        $count = $qb->getQuery()->getSingleScalarResult();
+
+        return $count ? 1 : 0;
+    }
+
     //find out if there are events in the database for this day
     private function totalEvents() {
-        
         $query = $this->buildQuery( "count(e.id)");
 
         $what  = $query['what'];
@@ -283,14 +303,15 @@ class Server {
             return $this->output( null, $error );     
         }
 
+        //no events for today in the database, get them from site and set them in the database
+        if( !$this->existEvents() ) {
+            $this->setEvents();
+        }
+
+        //find the total events for the conditions received in the parameters
         $this->totalEvents = $this->totalEvents();
 
         $eventRepository = $this->entityManager->getRepository('Event');
-
-        //no events for today in the database, get them from site and set them in the database
-        if( !$this->totalEvents ) {
-            $this->setEvents();
-        }
 
         //TODO: should one maintain this?
         if( $parameters['results'] === 'all' ) {
