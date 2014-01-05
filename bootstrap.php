@@ -15,8 +15,12 @@
     // database configuration parameters
     $conn = array(
             'dbname'   => 'DayIn',
+//            'dbname'   => 'icdifc_DayIn', //prd env
             'user'     => 'root',
-            'password' => 'ZGKU.Bq!',
+//            'user'     => 'icdifc_DayIn', //prd env
+            'password' => 'forsakenart',
+//            'password' => 's]@v!-}akCB&', // prd env
+#            'password' => 'ZGKU.Bq!',
             'host'     => 'localhost',
             'driver'   => 'pdo_mysql',
         );

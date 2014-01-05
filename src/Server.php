@@ -92,7 +92,7 @@ class Server {
         if( $this->type ) {
             $where['parameters']['type'] = "%$this->type%";
         }
-        if( $this->tweeted ) {
+        if( isset( $this->tweeted ) ) {
             $where['parameters']['tweeted'] = "$this->tweeted";
         }
         if( $this->id ) {
@@ -100,7 +100,10 @@ class Server {
         }
 
         foreach( $where['parameters'] as $key => $parameter ) {
-            array_push($where['query'], "e.$key like :$key");
+            if( $key == 'id' or $key == 'tweeted')
+                array_push($where['query'], "e.$key = :$key");
+            else 
+                array_push($where['query'], "e.$key like :$key");
         }
 
         $where['query'] = join(" and ", $where['query']);
