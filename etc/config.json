@@ -20,5 +20,8 @@
     },
     "parameters": [
         "results", "offset", "day", "month", "fields", "type", "tweeted", "id" 
-    ]
+    ],
+    "echonest": {
+           "key": "2FOIUUMCRLFMAWJXT"
+    }
 }

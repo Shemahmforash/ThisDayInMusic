@@ -1,4 +1,5 @@
 <?php
+use Echonest\Service\Echonest;
 
 class Server {
     //database access
@@ -136,6 +137,27 @@ class Server {
         return $count ? 1 : 0;
     }
 
+    private function findEventArtist( $text ) {
+        Echonest::configure($this->config['echonest']['key']);
+
+        $response = Echonest::query('artist', 'extract', array(
+            'text'    => $text,
+            'sort'    => 'hotttnesss-desc',
+            'results' => '1',
+        ));
+
+        if( $response && $response->response->status->code == 0 ) {
+            $artist = $response->response->artists[0];
+
+            $name = $artist->name;
+
+            return $name;
+        }
+        else {
+            return;
+        }
+    }
+
     //find out if there are events in the database for this day
     private function totalEvents() {
         $query = $this->buildQuery( "count(e.id)");
@@ -171,6 +193,11 @@ class Server {
                 $ev['description'] = sprintf('%s, %s was born', $ev['name'], $ev['description']);
             }
 
+            //must find artist name for these kind of events
+            if( $ev['type'] == 'Event') {
+                $ev['name'] = $this->findEventArtist( $ev['description'] );
+            }
+
             //set current event
             $event = new Event(); 
             $event->setDate( $date );
@@ -178,6 +205,7 @@ class Server {
             $event->setType( $ev['type'] ); 
             $event->setSource( $dim->getSource() ); 
             $this->entityManager->persist( $event );
+
 
             //connects the event to an artist
             if( $ev['name'] ) {
