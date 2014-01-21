@@ -23,17 +23,31 @@ class Artist {
      **/
     protected $events;
 
+    /**
+     * @OneToMany(targetEntity="Track", mappedBy="artist")
+     * @var Track[]
+     **/
+    protected $tracks;
+
     public function __construct() {
         $this->events = new ArrayCollection();
+        $this->tracks = new ArrayCollection();
     }
 
     public function assignToEvent( Event $event) {
         $this->events[] = $event;
     }
 
-    public function getProducts()
-    {
-        return $this->products;
+    public function addTrack( Track $track ) {
+        $this->tracks[] = $track;
+    }
+
+    public function getEvents() {
+        return $this->events;
+    }
+
+    public function getTracks() {
+        return $this->tracks;
     }
 
     /*Getters and setters*/
