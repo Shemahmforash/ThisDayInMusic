@@ -16,7 +16,6 @@
     $conn = array(
             'dbname'   => 'DayIn',
             'user'     => 'root',
-            'password' => 'forsakenart',
             'password' => 'ZGKU.Bq!',
             'host'     => 'localhost',
             'driver'   => 'pdo_mysql',
