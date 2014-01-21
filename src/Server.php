@@ -178,6 +178,21 @@ class Server {
             $event->setType( $ev['type'] ); 
             $event->setSource( $dim->getSource() ); 
             $this->entityManager->persist( $event );
+
+            //connects the event to an artist
+            if( $ev['name'] ) {
+                $artist = $this->entityManager->getRepository('Artist')->findBy(array('name' => $ev['name']));
+
+                if(!$artist) {
+                    $artist = new Artist();
+                    $artist->setName( $ev['name'] );
+                }
+
+                $artist->assignToEvent( $event );
+                $event->setArtist( $artist );
+
+                $this->entityManager->persist( $artist );
+            }
         }
 
         //insert all events to db

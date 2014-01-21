@@ -90,4 +90,8 @@ class Event {
     public function getArtist() {
         return $this->artist;
     }
+
+    public function setArtist($artist) {
+        $this->artist =  $artist;
+    }
 }
