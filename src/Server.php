@@ -65,6 +65,7 @@ class Server {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select( $what )
             ->from('Event', 'e')
+            ->innerJoin('Artist', 'a', 'WITH', "a.id = e.artist")
             ->where( $where['query'] )
             ->setFirstResult( $this->offset )
             ->setMaxResults( $this->results )
@@ -79,14 +80,19 @@ class Server {
         if( !$what ) {
             $fields = array();
             foreach ( $this->fields as $toShow ) {
-                array_push($fields, "e." . trim($toShow) );
+                $base = $toShow == 'artist' ? 'a.' : 'e.';
+
+                if( $toShow == 'artist')
+                    $toShow = 'name';
+
+                array_push($fields, $base . trim($toShow) );
             }
             $what = join(", ", $fields);
         }
 
         //build the where part from the parameters
         $where['parameters'] = array(
-                    'date' => '%' . $this->date->format('m-d')
+                    'date' => '%' . $this->date->format('m-d'),
                 );
 
         $where['query'] = array();
@@ -130,8 +136,11 @@ class Server {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select( $what )
             ->from('Event', 'e')
+            ->innerJoin('Artist', 'a', 'WITH', "a.id = e.artist")
             ->where( $where['query'] )
             ->setParameters( $where['parameters'] );
+
+
         $count = $qb->getQuery()->getSingleScalarResult();
 
         return $count ? 1 : 0;
@@ -169,6 +178,7 @@ class Server {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select( $what )
             ->from('Event', 'e')
+            ->innerJoin('Artist', 'a', 'WITH', "a.id = e.artist")
             ->where( $where['query'] )
             ->setParameters( $where['parameters'] );
         $count = $qb->getQuery()->getSingleScalarResult();

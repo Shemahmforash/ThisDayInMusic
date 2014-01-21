@@ -15,11 +15,12 @@
             "description",
             "type",
             "tweeted",
-            "id"
+            "id",
+            "artist"
         ]
     },
     "parameters": [
-        "results", "offset", "day", "month", "fields", "type", "tweeted", "id" 
+        "results", "offset", "day", "month", "fields", "type", "tweeted", "id", "artist" 
     ],
     "echonest": {
            "key": "2FOIUUMCRLFMAWJXT"
