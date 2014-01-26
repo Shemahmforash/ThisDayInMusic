@@ -15,7 +15,8 @@
         "shemahmforash/thisdayin": "dev-master",
         "echonest/echonest": "dev-master",
         "doctrine/orm": "2.*",
-        "symfony/yaml": "2.*"
+        "symfony/yaml": "2.*",
+        "spotify/webapi": "dev-master"
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.*"
