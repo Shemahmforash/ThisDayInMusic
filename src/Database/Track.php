@@ -1,5 +1,5 @@
 <?php
-// src/Track.php
+// src/Database/Track.php
 /**
  * @Entity @Table(name="Track")
 **/
@@ -17,7 +17,7 @@ class Track {
     protected $name;
 
     /**
-     * @ManyToOne(targetEntity="Artist", inversedBy="trackstracks")
+     * @ManyToOne(targetEntity="Artist", inversedBy="tracks")
      **/ 
     protected $artist;
 

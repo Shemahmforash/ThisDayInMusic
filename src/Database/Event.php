@@ -1,5 +1,5 @@
 <?php
-// src/Event.php
+// src/Database/Event.php
 /**
  * @Entity @Table(name="Event")
 **/
