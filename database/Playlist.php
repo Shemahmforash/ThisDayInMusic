@@ -1,7 +1,7 @@
 <?php
 use Doctrine\Common\Collections\ArrayCollection;
 
-// src/Database/Playlist.php
+// src/Playlist.php
 /**
  * @Entity @Table(name="Playlist",indexes={@index(name="date_idx", columns={"date"})})
  */

@@ -1,5 +1,5 @@
 <?php
-// src/Database/Track.php
+// src/Track.php
 /**
  * @Entity @Table(name="Track")
 **/

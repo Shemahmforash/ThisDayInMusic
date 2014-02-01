@@ -121,7 +121,6 @@ class Server {
                 'what'  => $what,
                 'where' => $where
             );
-        
     }
 
     private function existEvents() {
@@ -144,6 +143,10 @@ class Server {
         $count = $qb->getQuery()->getSingleScalarResult();
 
         return $count ? 1 : 0;
+    }
+
+    private function findArtistTracks( $artist ) {
+        
     }
 
     private function findEventArtist( $text ) {
@@ -228,6 +231,8 @@ class Server {
 
                 $artist->assignToEvent( $event );
                 $event->setArtist( $artist );
+
+                //TODO: find artist tracks
 
                 $this->entityManager->persist( $artist );
             }
@@ -346,6 +351,7 @@ class Server {
     }
 
     private function get($path, $parameters = null) {
+        //TODO: distinguish actions: event, playlist, etc.
         if( $path ) {
             return $this->output( null, array("code" => -5, "status" => "Invalid path '$path' for HTTP GET method") );
         }
