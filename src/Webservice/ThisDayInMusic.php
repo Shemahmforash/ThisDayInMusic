@@ -15,6 +15,15 @@ abstract class ThisDayInMusic {
     protected $date;
     protected $total;
 
+    //playlist or event type
+    protected $type;
+
+    protected $id;
+
+    protected $fields;
+
+    protected $offset;
+
     public function __construct( $entityManager, $config ) {
         $this->config = $config;
         $this->entityManager = $entityManager;

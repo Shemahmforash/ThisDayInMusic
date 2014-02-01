@@ -4,9 +4,7 @@ namespace Webservice\ThisDayInMusic;
 
 class Event extends \Webservice\ThisDayInMusic {
 
-    private $offset;
     private $results;
-    private $fields;
 
     public function __construct( $entityManager, $config ) {
         //assume default values
@@ -66,8 +64,6 @@ class Event extends \Webservice\ThisDayInMusic {
 
         $count = $qb->getQuery()->getSingleScalarResult();
 
-        var_dump( $count ); die;
-
         return $count ? 1 : 0;
     }
 
@@ -87,8 +83,6 @@ class Event extends \Webservice\ThisDayInMusic {
             ->where( $where['query'] )
             ->setParameters( $where['parameters'] );
         $count = $qb->getQuery()->getSingleScalarResult();
-
-        var_dump( $count ); die;
 
         return $count;
     }
@@ -280,7 +274,7 @@ class Event extends \Webservice\ThisDayInMusic {
             }
 
             //set current event
-            $event = new \Database\Event(); 
+            $event = new \Event(); 
             $event->setDate( $date );
             $event->setDescription( $ev['description'] ); 
             $event->setType( $ev['type'] ); 
@@ -293,7 +287,7 @@ class Event extends \Webservice\ThisDayInMusic {
                 $artist = $this->entityManager->getRepository('Artist')->findBy(array('name' => $ev['name']));
 
                 if(!$artist) {
-                    $artist = new \Database\Artist();
+                    $artist = new \Artist();
                     $artist->setName( $ev['name'] );
                 }
 

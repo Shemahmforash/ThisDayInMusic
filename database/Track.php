@@ -1,8 +1,6 @@
 <?php
 // src/Track.php
 
-namespace Database;
-
 /**
  * @Entity @Table(name="Track")
 **/
