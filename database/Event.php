@@ -1,5 +1,8 @@
 <?php
 // src/Event.php
+
+namespace Database;
+
 /**
  * @Entity @Table(name="Event")
 **/

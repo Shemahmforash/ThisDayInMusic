@@ -47,6 +47,31 @@ class Event extends \Webservice\ThisDayInMusic {
         return "events";    
     }
 
+    protected function exist() {
+        $what = "count(e.id)";
+
+        $query = $this->buildQuery( "count(e.id)", 0);
+
+        $what  = $query['what'];
+        $where = $query['where'];
+
+        //TODO: change this query builder to criteria matching
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select( $what )
+            ->from('Event', 'e')
+            ->innerJoin('Artist', 'a', 'WITH', "a.id = e.artist")
+            ->where( $where['query'] )
+            ->setParameters( $where['parameters'] );
+
+
+        $count = $qb->getQuery()->getSingleScalarResult();
+
+        var_dump( $count ); die;
+
+        return $count ? 1 : 0;
+    }
+
+
     //find out if there are events in the database for this day
     protected function total() {
         $query = $this->buildQuery( "count(e.id)");
@@ -62,6 +87,8 @@ class Event extends \Webservice\ThisDayInMusic {
             ->where( $where['query'] )
             ->setParameters( $where['parameters'] );
         $count = $qb->getQuery()->getSingleScalarResult();
+
+        var_dump( $count ); die;
 
         return $count;
     }
@@ -87,13 +114,14 @@ class Event extends \Webservice\ThisDayInMusic {
     }
 
     private function findEventArtist( $text ) {
-        Echonest::configure($this->config['echonest']['key']);
+        \Echonest\Service\Echonest::configure($this->config['echonest']['key']);
 
-        $response = Echonest::query('artist', 'extract', array(
+        $response = \Echonest\Service\Echonest::query('artist', 'extract', array(
             'text'    => $text,
             'sort'    => 'hotttnesss-desc',
             'results' => '1',
         ));
+
 
         if( $response && $response->response->status->code == 0 ) {
             $artist = $response->response->artists[0];
@@ -140,30 +168,28 @@ class Event extends \Webservice\ThisDayInMusic {
     private function get($parameters = null) {
         $error = $this->sanitizeParameters( $parameters );
 
-        var_dump($this->entityManager);die;
-
         if( $error ) {
             return $this->output( null, $error );     
         }
 
         //no events for today in the database, get them from site and set them in the database
-        if( !$this->exist() ) {
-            $this->set();
-        }
+#        if( !$this->exist() ) {
+#            $this->set();
+#       }
 
         //find the total events for the conditions received in the parameters
-        $this->totalEvents = $this->totalEvents();
+        $this->total = $this->total();
 
         $eventRepository = $this->entityManager->getRepository('Event');
 
         //TODO: should one maintain this?
         if( $parameters['results'] === 'all' ) {
-            $this->results = $this->totalEvents;     
+            $this->results = $this->total;     
         }
 
         //error
-        if( $this->offset > $this->totalEvents) {
-            return $this->output( null, array("code" => -1, "status" => "Offset ($this->offset) is larger than the total results ($this->totalEvents)") );
+        if( $this->offset > $this->total) {
+            return $this->output( null, array("code" => -1, "status" => "Offset ($this->offset) is larger than the total results ($this->total)") );
         }
 
         //get events from the db
@@ -213,7 +239,7 @@ class Event extends \Webservice\ThisDayInMusic {
         if( isset($parameters['day']) && preg_match( "/\d\d/", $parameters['day'] ) && isset($parameters['month']) && preg_match( "/\d\d/", $parameters['month'] ) ) {
             $month = $parameters['month'];
             $day   = $parameters['day'];
-            $date = new DateTime("2013-$month-$day");
+            $date = new \DateTime("2013-$month-$day");
 
             $this->date = $date;
         }
@@ -232,34 +258,12 @@ class Event extends \Webservice\ThisDayInMusic {
         }
     }
 
-    protected function exist() {
-        $what = "count(e.id)";
-
-        $query = $this->buildQuery( "count(e.id)", 0);
-
-        $what  = $query['what'];
-        $where = $query['where'];
-
-        //TODO: change this query builder to criteria matching
-        $qb = $this->entityManager->createQueryBuilder();
-        $qb->select( $what )
-            ->from('Event', 'e')
-            ->innerJoin('Artist', 'a', 'WITH', "a.id = e.artist")
-            ->where( $where['query'] )
-            ->setParameters( $where['parameters'] );
-
-
-        $count = $qb->getQuery()->getSingleScalarResult();
-
-        return $count ? 1 : 0;
-    }
-
     protected function set() {
-        $dim = new ThisDayIn\Music($this->date->format('j'), $this->date->format('F'));
+        $dim = new \ThisDayIn\Music($this->date->format('j'), $this->date->format('F'));
         $evs = $dim->getEvents();
 
         foreach($evs as $ev ) {
-            $date   = new DateTime( $ev['date'] );
+            $date   = new \DateTime( $ev['date'] );
 
             if( $ev['type'] === 'Death') {
                 $ev['description'] = sprintf('%s, %s', $ev['name'], $ev['description']);
@@ -276,7 +280,7 @@ class Event extends \Webservice\ThisDayInMusic {
             }
 
             //set current event
-            $event = new Event(); 
+            $event = new \Database\Event(); 
             $event->setDate( $date );
             $event->setDescription( $ev['description'] ); 
             $event->setType( $ev['type'] ); 
@@ -289,7 +293,7 @@ class Event extends \Webservice\ThisDayInMusic {
                 $artist = $this->entityManager->getRepository('Artist')->findBy(array('name' => $ev['name']));
 
                 if(!$artist) {
-                    $artist = new Artist();
+                    $artist = new \Database\Artist();
                     $artist->setName( $ev['name'] );
                 }
 
@@ -305,11 +309,9 @@ class Event extends \Webservice\ThisDayInMusic {
         //insert all events to db
         if( count( $evs ) ) {
             $this->entityManager->flush();
-            $this->totalEvents = $this->totalEvents();
+            $this->total = $this->total();
         }
     }
-    
-    
 }
 
 ?>

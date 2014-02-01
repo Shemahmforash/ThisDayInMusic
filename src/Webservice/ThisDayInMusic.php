@@ -13,6 +13,7 @@ abstract class ThisDayInMusic {
     protected $config;
 
     protected $date;
+    protected $total;
 
     public function __construct( $entityManager, $config ) {
         $this->config = $config;
