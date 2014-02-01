@@ -167,9 +167,9 @@ class Event extends \Webservice\ThisDayInMusic {
         }
 
         //no events for today in the database, get them from site and set them in the database
-#        if( !$this->exist() ) {
-#            $this->set();
-#       }
+        if( !$this->exist() ) {
+            $this->set();
+       }
 
         //find the total events for the conditions received in the parameters
         $this->total = $this->total();
