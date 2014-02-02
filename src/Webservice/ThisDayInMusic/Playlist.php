@@ -2,9 +2,9 @@
 
 namespace Webservice\ThisDayInMusic;
 
-class Playlist extents Webservice\ThisDayInMusic {
+class Playlist extends \Webservice\ThisDayInMusic {
 
-    private function process($method, $path, $parameters ) {
+    protected function process($method, $path, $parameters ) {
         if( $method === 'GET' ) {
             $this->get($path, $parameters );
         }
