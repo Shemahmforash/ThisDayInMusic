@@ -86,6 +86,23 @@ abstract class ThisDayInMusic {
         echo json_encode($output);
     }
 
+    public static function outputError( $error ) {
+        header('Content-type: application/json');
+        $code = $error['code'];
+        $status = $error['status'];
+        $data = array();
+
+        $response = array(
+                "status" => array("version" => self::VERSION, "code" => $code, "status" => $status ),
+            );
+
+        $output = array(
+            'response' => $response
+        );
+
+        echo json_encode($output);
+    }
+
     protected function buildQuery( $what = null, $useParameters = 1 ) {
         //build the columns to show from the parameters
         if( !$what ) {

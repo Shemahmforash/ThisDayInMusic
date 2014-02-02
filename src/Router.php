@@ -13,11 +13,11 @@ class Router {
         $action = ucfirst( $match['action'] );
 
         if(!$action)
-            return;
+            return \Webservice\ThisDayInMusic::outputError(array("code" => -6, "status" => "Invalid action supplied to the webservice. Please check the documentation." ));
 
         $class = "Webservice\ThisDayInMusic\\$action";
         if (!class_exists($class)) {
-            throw new Exception("Missing class $action.");
+            return \Webservice\ThisDayInMusic::outputError(array("code" => -6, "status" => "Invalid action supplied to the webservice. Please check the documentation." ));
         }
 
         return $class;
