@@ -16,8 +16,14 @@ class Artist {
     /**
      * @var string
      */
-    /** @Column(type="string", nullable=true) **/
+    /** @Column(type="string", unique=true, nullable=false) **/
     protected $name;
+
+    /**
+     * @var string
+     */
+    /** @Column(type="string", nullable=true) **/
+    protected $spotifyId;
 
     /**
      * @OneToMany(targetEntity="Event", mappedBy="artist")
@@ -63,6 +69,14 @@ class Artist {
 
     public function setName($name) {
         $this->name = $name;
+    }
+
+    public function getSpotifyId() {
+        return $this->spotifyId;
+    }
+
+    public function setSpotifyId($spotifyId) {
+        $this->spotifyId = $spotifyId;
     }
 }
 

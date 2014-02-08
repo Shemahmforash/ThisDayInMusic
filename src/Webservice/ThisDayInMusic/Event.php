@@ -7,8 +7,6 @@ class Event extends \Webservice\ThisDayInMusic {
     private $results;
 
     public function __construct( $entityManager, $config ) {
-        //assume default values
-        $this->date    = new \DateTime("now");
         $this->results = $config['pagination']['results'];
         $this->offset  = $config['pagination']['offset'];
         $this->fields  = $config['fields']['default'];
@@ -45,6 +43,10 @@ class Event extends \Webservice\ThisDayInMusic {
         return "events";    
     }
 
+    protected function tableAbbr() {
+        return "e";    
+    }
+
     protected function exist() {
         $what = "count(e.id)";
 
@@ -66,7 +68,6 @@ class Event extends \Webservice\ThisDayInMusic {
 
         return $count ? 1 : 0;
     }
-
 
     //find out if there are events in the database for this day
     protected function total() {
@@ -114,19 +115,31 @@ class Event extends \Webservice\ThisDayInMusic {
             'text'    => $text,
             'sort'    => 'hotttnesss-desc',
             'results' => '1',
+            'bucket'  => 'id:spotify-WW',
         ));
-
 
         if( $response && $response->response->status->code == 0 ) {
             $artist = $response->response->artists[0];
 
+            $spotifyId = array_shift( $artist->foreign_ids );
+            $spotifyId = $spotifyId->foreign_id;
+
             $name = $artist->name;
 
-            return $name;
+            return array( 'name' => $name, 'spotifyId' => $spotifyId );
         }
         else {
             return;
         }
+    }
+
+    private function findArtistTracks( $artist ) {
+
+        $api = new \Webservice\Spotify\WebApi();
+        $results = $api->get('search', 'artist', 'json', array("q" => $artist));
+
+        var_dump( $results ); die;
+        
     }
 
     private function put( $parameters ) {
@@ -176,8 +189,7 @@ class Event extends \Webservice\ThisDayInMusic {
 
         $eventRepository = $this->entityManager->getRepository('Event');
 
-        //TODO: should one maintain this?
-        if( $parameters['results'] === 'all' ) {
+        if( isset($parameters['results']) && $parameters['results'] === 'all' ) {
             $this->results = $this->total;     
         }
 
@@ -270,8 +282,12 @@ class Event extends \Webservice\ThisDayInMusic {
 
             //must find artist name for these kind of events
             if( $ev['type'] == 'Event') {
-                $ev['name'] = $this->findEventArtist( $ev['description'] );
+                $artist = $this->findEventArtist( $ev['description'] );
+
+                $ev['name'] = $artist['name'];
+                $ev['spotifyId'] = $artist['spotifyId'];
             }
+            #TODO: find artist spotify id for the other event types
 
             //set current event
             $event = new \Event(); 
@@ -281,7 +297,6 @@ class Event extends \Webservice\ThisDayInMusic {
             $event->setSource( $dim->getSource() ); 
             $this->entityManager->persist( $event );
 
-
             //connects the event to an artist
             if( $ev['name'] ) {
                 $artist = $this->entityManager->getRepository('Artist')->findBy(array('name' => $ev['name']));
@@ -289,12 +304,16 @@ class Event extends \Webservice\ThisDayInMusic {
                 if(!$artist) {
                     $artist = new \Artist();
                     $artist->setName( $ev['name'] );
+
+                    if($ev['spotifyId'] )
+                        $artist->setSpotifyId($ev['spotifyId']);
                 }
 
                 $artist->assignToEvent( $event );
                 $event->setArtist( $artist );
 
                 //TODO: find artist tracks
+                #$tracks = $this->findArtistTracks( $ev['name'] );
 
                 $this->entityManager->persist( $artist );
             }

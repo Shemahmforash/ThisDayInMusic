@@ -14,13 +14,23 @@ class Track {
     /**
      * @var string
      */
-    /** @Column(type="string", nullable=true) **/
+    /** @Column(type="string", nullable=false) **/
     protected $name;
+
+    /**
+     * @var string
+     */
+    /** @Column(type="string", nullable=true) **/
+    protected $spotifyId;
 
     /**
      * @ManyToOne(targetEntity="Artist", inversedBy="tracks")
      **/ 
     protected $artist;
+
+    public function assignToArtist( Artist $artist ) {
+        $this->artist = $artist;
+    }
 
     public function getArtist() {
         return $this->artist;
@@ -37,6 +47,14 @@ class Track {
 
     public function setName($name) {
         $this->name = $name;
+    }
+
+    public function getSpotifyId() {
+        return $this->spotifyId;
+    }
+
+    public function setSpotifyId($spotifyId) {
+        $this->spotifyId = $spotifyId;
     }
 }
 ?>

@@ -15,7 +15,7 @@ class Router {
         if(!$action)
             return \Webservice\ThisDayInMusic::outputError(array("code" => -6, "status" => "Invalid action supplied to the webservice. Please check the documentation." ));
 
-        $class = "Webservice\ThisDayInMusic\\$action";
+        $class = "\Webservice\ThisDayInMusic\\$action";
         if (!class_exists($class)) {
             return \Webservice\ThisDayInMusic::outputError(array("code" => -6, "status" => "Invalid action supplied to the webservice. Please check the documentation." ));
         }

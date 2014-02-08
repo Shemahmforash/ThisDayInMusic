@@ -19,14 +19,15 @@ abstract class ThisDayInMusic {
     protected $type;
 
     protected $id;
-
     protected $fields;
-
     protected $offset;
 
     public function __construct( $entityManager, $config ) {
         $this->config = $config;
         $this->entityManager = $entityManager;
+
+        //assume default values
+        $this->date    = new \DateTime("now");
 
         $this->start();
     }
@@ -54,6 +55,8 @@ abstract class ThisDayInMusic {
 
     abstract protected function resultName();
 
+    abstract protected function tableAbbr();
+
     //output the webservice results
     protected function output ($results, $error = null ) {
         header('Content-type: application/json');
@@ -75,7 +78,7 @@ abstract class ThisDayInMusic {
                 "status" => array("version" => self::VERSION, "code" => $code, "status" => $status ),
             );
         if( !$error ) {
-            $response[ $this->resultName ] = $data;
+            $response[ $this->resultName() ] = $data;
             $response['pagination'] = array("total" => intval($this->total), "offset" => $this->offset, "results" => count( $results ) );
         }
 
@@ -108,7 +111,7 @@ abstract class ThisDayInMusic {
         if( !$what ) {
             $fields = array();
             foreach ( $this->fields as $toShow ) {
-                $base = $toShow == 'artist' ? 'a.' : 'e.';
+                $base = $toShow == 'artist' ? 'a.' : $this->tableAbbr() . ".";
 
                 if( $toShow == 'artist')
                     $toShow = 'name';
@@ -138,9 +141,9 @@ abstract class ThisDayInMusic {
 
         foreach( $where['parameters'] as $key => $parameter ) {
             if( $key == 'id' or $key == 'tweeted')
-                array_push($where['query'], "e.$key = :$key");
+                array_push($where['query'], $this->tableAbbr() . ".$key = :$key");
             else 
-                array_push($where['query'], "e.$key like :$key");
+                array_push($where['query'], $this->tableAbbr() . ".$key like :$key");
         }
 
         $where['query'] = join(" and ", $where['query']);
