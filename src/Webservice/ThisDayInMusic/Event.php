@@ -133,15 +133,6 @@ class Event extends \Webservice\ThisDayInMusic {
         }
     }
 
-    private function findArtistTracks( $artist ) {
-
-        $api = new \Webservice\Spotify\WebApi();
-        $results = $api->get('search', 'artist', 'json', array("q" => $artist));
-
-        var_dump( $results ); die;
-        
-    }
-
     private function put( $parameters ) {
         preg_match("/^event\/(?P<id>\d+)$/", $parameters, $match);
 
@@ -208,61 +199,6 @@ class Event extends \Webservice\ThisDayInMusic {
         $this->output($events);
     }
 
-    private function sanitizeParameters( $parameters ) {
-        //check valid parameters
-        foreach ($parameters as $key => $value) {
-            if(!in_array($key, $this->config['parameters'])) {
-                return array("code" => -3, "status" => "Parameters '$key' is not accepted.");     
-            }
-        }
-
-        /*Check parameters' value*/
-        if(isset($parameters['results']) && preg_match( "/\d+/", $parameters['results'] ) && $parameters['results'] < $this->config['pagination']['max_results'] && $parameters['results'] > 0 ) {
-            $this->results = $parameters['results'];
-        }
-
-        if(isset($parameters['offset']) && preg_match( "/\d+/", $parameters['offset'] ) && $parameters['offset'] > 0 ) {
-            $this->offset = $parameters['offset'];
-        }
-
-        if( isset($parameters['fields'] ) && is_array( $parameters['fields'] ) ) {
-
-            $fields = array();
-            foreach( $parameters['fields'] as $field) {
-                if( in_array($field, $this->config['fields']['accepted'] ) && !in_array($field, $fields) ) {
-                    array_push( $fields, $field);     
-                }
-                else {
-                    return array("code" => -4, "status" => "Field '$field' is not accepted.");     
-                }
-
-            }
-            if( count( $fields ) )
-                $this->fields = $fields;
-        }
-
-        //the day/month each must be a pair of numbers
-        if( isset($parameters['day']) && preg_match( "/\d\d/", $parameters['day'] ) && isset($parameters['month']) && preg_match( "/\d\d/", $parameters['month'] ) ) {
-            $month = $parameters['month'];
-            $day   = $parameters['day'];
-            $date = new \DateTime("2013-$month-$day");
-
-            $this->date = $date;
-        }
-
-        /*Filters*/
-        if( isset($parameters['type'] ) && preg_match("/\w+/", $parameters['type'] ) ) {
-            $this->type = $parameters['type'];
-        }
-
-        if( isset($parameters['tweeted'] ) && preg_match("/[1|0]/", $parameters['tweeted'] ) ) {
-            $this->tweeted = $parameters['tweeted'];
-        }
-
-        if( isset($parameters['id'] ) && preg_match("/\d+/", $parameters['id'] ) ) {
-            $this->id = $parameters['id'];
-        }
-    }
 
     protected function set() {
         $dim = new \ThisDayIn\Music($this->date->format('j'), $this->date->format('F'));
@@ -313,7 +249,6 @@ class Event extends \Webservice\ThisDayInMusic {
                 $event->setArtist( $artist );
 
                 //TODO: find artist tracks
-                #$tracks = $this->findArtistTracks( $ev['name'] );
 
                 $this->entityManager->persist( $artist );
             }

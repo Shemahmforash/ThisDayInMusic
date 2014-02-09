@@ -25,9 +25,13 @@ foreach ( $artists as $artist ) {
     if(!$name)
         continue;
 
+    echo "processing $name\n";
+
     #ignore artists that already have tracks
-    if($artist->getTracks()->count())
+    if($artist->getTracks()->count()) {
+        echo "skipping $name \n";
         continue;
+    }
 
     $query = http_build_query(array( 'artist' => $name,  'bucket' => array('id:spotify-WW', 'tracks'), 'limit'  => "true", "results" => 10));
     $query = preg_replace("/\%5B\d+\%5D/im", "", $query); 
@@ -63,6 +67,10 @@ foreach ( $artists as $artist ) {
             $entityManager->persist( $artist );
             
         }
+    }
+    else {
+        echo "error: " . $response->status->message . "\n";
+        break;
     }
 
     $count++;
