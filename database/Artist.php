@@ -26,6 +26,12 @@ class Artist {
     protected $spotifyId;
 
     /**
+     * @var boolean 
+     */
+    /** @Column(type="boolean", nullable=true) **/
+    protected $hasTracks;
+
+    /**
      * @OneToMany(targetEntity="Event", mappedBy="artist")
      * @var Event[]
      **/
@@ -77,6 +83,14 @@ class Artist {
 
     public function setSpotifyId($spotifyId) {
         $this->spotifyId = $spotifyId;
+    }
+
+    public function getHasTracks() {
+        return $this->hasTracks;
+    }
+
+    public function setHasTracks($hasTracks) {
+        $this->hasTracks = $hasTracks;
     }
 }
 

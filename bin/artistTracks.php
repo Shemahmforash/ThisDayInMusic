@@ -1,23 +1,10 @@
 <?php
 
-require_once "../vendor/autoload.php";
-require_once "../bootstrap.php";
-
-/*
-#find trackless artists
-$qb = $entityManager->createQueryBuilder();
-$qb->select( "a.name" )
-    ->from('Artist', 'a')
-#    ->setFirstResult( 6 )
-    ->setMaxResults( 10 )
-    ;
-$artists = $qb->getQuery()->getResult();
-*/
+require_once __DIR__ . "/../vendor/autoload.php";
+require_once __DIR__ . "/../bootstrap.php";
 
 $artistRepository = $entityManager->getRepository('Artist');
-$artists = $artistRepository->findAll();
-
-$count = 0;
+$artists = $artistRepository->findBy(array("hasTracks" => NULL));
 
 foreach ( $artists as $artist ) {
     $name = $artist->getName();
@@ -25,13 +12,14 @@ foreach ( $artists as $artist ) {
     if(!$name)
         continue;
 
-    echo "processing $name\n";
-
     #ignore artists that already have tracks
     if($artist->getTracks()->count()) {
-        echo "skipping $name \n";
+        $entityManager->persist( $artist );
+        $artist->setHasTracks( true );
         continue;
     }
+
+    error_log( "processing $name" );
 
     $query = http_build_query(array( 'artist' => $name,  'bucket' => array('id:spotify-WW', 'tracks'), 'limit'  => "true", "results" => 10));
     $query = preg_replace("/\%5B\d+\%5D/im", "", $query); 
@@ -41,12 +29,20 @@ foreach ( $artists as $artist ) {
 
     $response = $response->response;
 
+
     if( $response && $response->status->code == 0 ) {
         $songs = $response->songs;
 
+        $entityManager->persist( $artist );
+
         #no songs, move on to next artist
-        if(!count($songs))
+        if(!count($songs)) {
+            $artist->setHasTracks( false );
             continue;
+        }
+        else {
+            $artist->setHasTracks( true );
+        }
 
         foreach( $songs as $song ) {
             $track = new \Track();
@@ -64,7 +60,6 @@ foreach ( $artists as $artist ) {
             $track->assignToArtist( $artist );
 
             $entityManager->persist( $track );
-            $entityManager->persist( $artist );
             
         }
     }
@@ -73,7 +68,6 @@ foreach ( $artists as $artist ) {
         break;
     }
 
-    $count++;
 }
 
 $entityManager->flush();

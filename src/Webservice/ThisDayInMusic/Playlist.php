@@ -34,14 +34,20 @@ class Playlist extends \Webservice\ThisDayInMusic {
             $this->set();
         }
 
+#TODO: even if playlist exists, there should be the chance to add more tracks to it.
+
         if(!$this->tracks) {
             #get the tracks from the db     
 
             #TODO: filter by offset and number of results
             $query = $this->entityManager->createQuery('SELECT p,t FROM Playlist p JOIN p.tracks t WHERE p.date LIKE :date');
             $query->setParameter("date", "%" . $this->date->format('m-d'));
-
-            $playlist = $query->getSingleResult();
+            
+            try {
+                $playlist = $query->getSingleResult();
+            } catch (\Doctrine\ORM\NoResultException $e ) {
+                return $this->output( null, array("code" => -2, "status" => "No tracks for playlist found.") );
+            }
 
             $this->tracks = $playlist->getTracks();
         }
@@ -70,29 +76,43 @@ class Playlist extends \Webservice\ThisDayInMusic {
         $query->setParameter("date", "%" . $this->date->format('m-d'));
         $events = $query->getResult();
 
+        $artistRepository = $this->entityManager->getRepository('Artist');
+        $artists = $artistRepository->findBy(array("hasTracks" => NULL));
+
+        if( count( $artists ) )
+            return $this->output( null, array("code" => -2, "status" => "No tracks for playlist found. Please try again later.") );
+
         #find tracks for each artist and create a playlist with a track for each one of the artists
         foreach ( $events as $event ) {
             $artist = $event->getArtist();
 
             #trackless artist will not enter the playlist
-            if(!$artist->getTracks()->count() )
+            if(!$artist->getTracks()->count() ) {
+                error_log("trackless: " . $artist->getName() );
                 continue;
+            }
 
             $tracks = $artist->getTracks()->toArray();
 
+            #get the first track without event
             $track = array_shift( $tracks );
 
-            #addto playlist tracks
+            $this->entityManager->persist( $track );
+            $this->entityManager->persist( $event );
+            $event->setTrack( $track );
+            $track->assignToEvent( $event );
+
+            #add to playlist tracks
             array_push( $this->tracks, $track );
         }
 
+        #create new playlist from the tracks found
         if( count( $this->tracks ) ) {
             $playlist = new \Playlist();
             $playlist->setDate( $this->date );
             $this->entityManager->persist( $playlist );
 
             foreach ( $this->tracks as $track ) {
-                $this->entityManager->persist( $track );
                 $playlist->addTrack( $track );
             }
 
@@ -107,9 +127,10 @@ class Playlist extends \Webservice\ThisDayInMusic {
         $data = array();
         foreach( $results as $track) {
             $info = array(
-                'name' => $track->getName(),
-                'artist' => $track->getArtist()->getname(),
-                'spotifyId' => $track->getSpotifyId()
+                'name'      => $track->getName(),
+                'artist'    => $track->getArtist()->getname(),
+                'spotifyId' => $track->getSpotifyId(),
+                'event'     => $track->getEvent() ? $track->getDescription() : "",
             );
             array_push( $data, $info );
         }

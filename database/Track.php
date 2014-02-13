@@ -28,12 +28,25 @@ class Track {
      **/ 
     protected $artist;
 
+    /**
+     * @OneToOne(targetEntity="Event", inversedBy="track")
+     **/ 
+    protected $event;
+
     public function assignToArtist( Artist $artist ) {
         $this->artist = $artist;
     }
 
     public function getArtist() {
         return $this->artist;
+    }
+
+    public function assignToEvent( Event $event) {
+        $this->events = $event;
+    }
+
+    public function getEvent() {
+        return $this->event;
     }
 
     /*Getters and setters*/

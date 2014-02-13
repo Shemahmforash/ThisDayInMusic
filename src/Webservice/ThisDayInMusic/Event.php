@@ -119,14 +119,28 @@ class Event extends \Webservice\ThisDayInMusic {
         ));
 
         if( $response && $response->response->status->code == 0 ) {
-            $artist = $response->response->artists[0];
 
-            $spotifyId = array_shift( $artist->foreign_ids );
-            $spotifyId = $spotifyId->foreign_id;
+            $artists =$response->response->artists;
 
-            $name = $artist->name;
+            if( !is_array(  $artists ) )
+                return;
 
-            return array( 'name' => $name, 'spotifyId' => $spotifyId );
+            if( !count( $artists ) )
+                return;
+
+            $artist = array_shift( $artists );
+            $return = array("name" => $artist->name );
+
+            error_log( "name = " . $artist->name );
+
+            if( isset( $artist->foreign_ids ) && is_array( $artist->foreign_ids ) ) {
+                $spotifyId = array_shift( $artist->foreign_ids );
+                $spotifyId = $spotifyId->foreign_id;
+
+                $return['spotifyId'] = $spotifyId;
+            }
+
+            return $return;
         }
         else {
             return;
@@ -221,7 +235,8 @@ class Event extends \Webservice\ThisDayInMusic {
                 $artist = $this->findEventArtist( $ev['description'] );
 
                 $ev['name'] = $artist['name'];
-                $ev['spotifyId'] = $artist['spotifyId'];
+                if(isset( $artist['spotifyId'] ) )
+                    $ev['spotifyId'] = $artist['spotifyId'];
             }
             #TODO: find artist spotify id for the other event types
 
@@ -237,20 +252,28 @@ class Event extends \Webservice\ThisDayInMusic {
             if( $ev['name'] ) {
                 $artist = $this->entityManager->getRepository('Artist')->findBy(array('name' => $ev['name']));
 
+                $artist = array_shift( $artist );
+
                 if(!$artist) {
                     $artist = new \Artist();
                     $artist->setName( $ev['name'] );
 
-                    if($ev['spotifyId'] )
+                    $event->setArtist( $artist );
+
+                    if(isset( $ev['spotifyId'] ) )
                         $artist->setSpotifyId($ev['spotifyId']);
                 }
 
+                error_log("artist name: " . $artist->getName() );
+
                 $artist->assignToEvent( $event );
-                $event->setArtist( $artist );
 
                 //TODO: find artist tracks
 
                 $this->entityManager->persist( $artist );
+
+                #one must save that here so it copes for repeated artist in the event list
+                $this->entityManager->flush();
             }
         }
 

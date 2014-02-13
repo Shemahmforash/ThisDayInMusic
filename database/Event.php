@@ -44,6 +44,11 @@ class Event {
      **/ 
     protected $artist;
 
+    /**
+     * @OneToOne(targetEntity="Track", inversedBy="event")
+     **/ 
+    protected $track;
+
     public function getId() {
         return $this->id;
     }
@@ -94,5 +99,13 @@ class Event {
 
     public function setArtist($artist) {
         $this->artist =  $artist;
+    }
+
+    public function getTrack() {
+        return $this->track;
+    }
+
+    public function setTrack($track) {
+        $this->track = $track;
     }
 }
