@@ -100,6 +100,7 @@ class Event extends \Webservice\ThisDayInMusic {
             ->from('Event', 'e')
             ->innerJoin('Artist', 'a', 'WITH', "a.id = e.artist")
             ->where( $where['query'] )
+            ->orderBy('e.id', 'ASC')
             ->setFirstResult( $this->offset )
             ->setMaxResults( $this->results )
             ->setParameters( $where['parameters'] );
@@ -186,8 +187,9 @@ class Event extends \Webservice\ThisDayInMusic {
 
         //no events for today in the database, get them from site and set them in the database
         if( !$this->exist() ) {
-            $this->set();
-       }
+            #$this->set();
+            return $this->output( null, array("code" => -3, "status" => "Could not find events for " . $this->date("Y-m-d" ) . ". Please try again later." ) );
+        }
 
         //find the total events for the conditions received in the parameters
         $this->total = $this->total();
@@ -213,7 +215,7 @@ class Event extends \Webservice\ThisDayInMusic {
         $this->output($events);
     }
 
-
+/*
     protected function set() {
         $dim = new \ThisDayIn\Music($this->date->format('j'), $this->date->format('F'));
         $evs = $dim->getEvents();
@@ -283,6 +285,7 @@ class Event extends \Webservice\ThisDayInMusic {
             $this->total = $this->total();
         }
     }
+    */
 }
 
 ?>

@@ -49,13 +49,11 @@ abstract class ThisDayInMusic {
 
     abstract protected function exist();
 
-    abstract protected function set();
-
-    abstract protected function prettifyResults( $results );
-
     abstract protected function resultName();
 
     abstract protected function tableAbbr();
+
+    abstract protected function prettifyResults( $results );
 
     //output the webservice results
     protected function output ($results, $error = null ) {

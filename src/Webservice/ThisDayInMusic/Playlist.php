@@ -34,13 +34,10 @@ class Playlist extends \Webservice\ThisDayInMusic {
             $this->set();
         }
 
-#TODO: even if playlist exists, there should be the chance to add more tracks to it.
-
         if(!$this->tracks) {
             #get the tracks from the db     
 
-            #TODO: filter by offset and number of results
-            $query = $this->entityManager->createQuery('SELECT p,t FROM Playlist p JOIN p.tracks t WHERE p.date LIKE :date');
+            $query = $this->entityManager->createQuery('SELECT p,t FROM Playlist p JOIN p.tracks t WHERE p.date LIKE :date order by p.id');
             $query->setParameter("date", "%" . $this->date->format('m-d'));
             
             try {
@@ -79,8 +76,9 @@ class Playlist extends \Webservice\ThisDayInMusic {
         $artistRepository = $this->entityManager->getRepository('Artist');
         $artists = $artistRepository->findBy(array("hasTracks" => NULL));
 
+        #do not show playlist while the cron hasn't set all artist tracks
         if( count( $artists ) )
-            return $this->output( null, array("code" => -2, "status" => "No tracks for playlist found. Please try again later.") );
+            return $this->output( null, array("code" => -2, "status" => "No tracks for playlist found. Please try again later.") );#TODO: fix json error here
 
         #find tracks for each artist and create a playlist with a track for each one of the artists
         foreach ( $events as $event ) {
