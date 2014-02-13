@@ -6,6 +6,11 @@ require_once __DIR__ . "/../bootstrap.php";
 $artistRepository = $entityManager->getRepository('Artist');
 $artists = $artistRepository->findBy(array("hasTracks" => NULL));
 
+if( count( $artists ) == 0  ) {
+    error_log( "no trackless artists. Exitting script." );
+    exit;
+}
+
 foreach ( $artists as $artist ) {
     $name = $artist->getName();
 
@@ -15,7 +20,6 @@ foreach ( $artists as $artist ) {
     #ignore artists that already have tracks
     if($artist->getTracks()->count()) {
         $entityManager->persist( $artist );
-        $artist->setHasTracks( true );
         continue;
     }
 
@@ -28,7 +32,6 @@ foreach ( $artists as $artist ) {
     $response = Echonest\Service\Echonest::query('song', 'search', $query);
 
     $response = $response->response;
-
 
     if( $response && $response->status->code == 0 ) {
         $songs = $response->songs;
@@ -67,7 +70,6 @@ foreach ( $artists as $artist ) {
         echo "error: " . $response->status->message . "\n";
         break;
     }
-
 }
 
 $entityManager->flush();
