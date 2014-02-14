@@ -88,13 +88,13 @@ class Playlist extends \Webservice\ThisDayInMusic {
             );
         }
 
-        #find tracks for each artist and create a playlist with a track for each one of the artists
+        #find tracks for each event artist and create a playlist with a track for each one of the artists
         foreach ( $events as $event ) {
             $artist = $event->getArtist();
 
             #trackless artist will not enter the playlist
             if(!$artist->getTracks()->count() ) {
-                error_log("trackless: " . $artist->getName() );
+                error_log("trackless: " . $artist->getName() . ". Not adding to playlist" );
                 continue;
             }
 
@@ -102,11 +102,13 @@ class Playlist extends \Webservice\ThisDayInMusic {
 
             #get the first track without event
             $track = array_shift( $tracks );
+            #TODO: Find the first unpublished track! and set it as published.
+
+            $event->setTrack( $track );
+            $track->assignToEvent( $event );
 
             $this->entityManager->persist( $track );
             $this->entityManager->persist( $event );
-            $event->setTrack( $track );
-            $track->assignToEvent( $event );
 
             #add to playlist tracks
             array_push( $this->tracks, $track );
@@ -116,11 +118,12 @@ class Playlist extends \Webservice\ThisDayInMusic {
         if( count( $this->tracks ) ) {
             $playlist = new \Playlist();
             $playlist->setDate( $this->date );
-            $this->entityManager->persist( $playlist );
 
             foreach ( $this->tracks as $track ) {
                 $playlist->addTrack( $track );
             }
+
+            $this->entityManager->persist( $playlist );
 
             //update db
             $this->entityManager->flush();
@@ -134,11 +137,12 @@ class Playlist extends \Webservice\ThisDayInMusic {
     protected function prettifyResults( $results ) {
         $data = array();
         foreach( $results as $track) {
+            $event = 
             $info = array(
                 'name'      => $track->getName(),
                 'artist'    => $track->getArtist()->getname(),
                 'spotifyId' => $track->getSpotifyId(),
-                'event'     => $track->getEvent() ? $track->getDescription() : "",
+                'event'     => $track->getEvent() ? "[" . $track->getEvent()->getType() . "] " .  $track->getEvent()->getDescription() : "",
             );
             array_push( $data, $info );
         }
@@ -175,5 +179,4 @@ class Playlist extends \Webservice\ThisDayInMusic {
 
         return $count ? 1 : 0;
     }
-    
 }

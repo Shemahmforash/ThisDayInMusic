@@ -189,7 +189,7 @@ abstract class ThisDayInMusic {
         if( isset($parameters['day']) && preg_match( "/\d\d/", $parameters['day'] ) && isset($parameters['month']) && preg_match( "/\d\d/", $parameters['month'] ) ) {
             $month = $parameters['month'];
             $day   = $parameters['day'];
-            $date = new \DateTime("2013-$month-$day");
+            $date = new \DateTime("2014-$month-$day");
 
             $this->date = $date;
         }

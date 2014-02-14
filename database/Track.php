@@ -42,7 +42,7 @@ class Track {
     }
 
     public function assignToEvent( Event $event) {
-        $this->events = $event;
+        $this->event = $event;
     }
 
     public function getEvent() {
