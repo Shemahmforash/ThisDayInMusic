@@ -3,9 +3,7 @@
 require_once __DIR__ . "/../vendor/autoload.php";
 require_once __DIR__ . "/../bootstrap.php";
 
-#$date = new DateTime("now");
-
-$date = new DateTime('2014-07-02');
+$date = new DateTime("now");
 
 $query = $entityManager->createQuery('SELECT count(e) FROM Event e WHERE e.date LIKE :date');
 $query->setParameter("date", "%" . $date->format('m-d'));
@@ -84,7 +82,7 @@ if( count( $evs ) ) {
 function findEventArtist( $text ) {
 
     #get the configuration file for the app
-    $file = file_get_contents("../etc/config.json");
+    $file = file_get_contents(__DIR__ . "/../etc/config.json");
     $config = json_decode( $file, true );
 
     \Echonest\Service\Echonest::configure($config['echonest']['key']);
