@@ -31,7 +31,11 @@ class Playlist extends \Webservice\ThisDayInMusic {
 
         #no playlist, set it from the event -> artist -> tracks tables
         if( !$this->exist() ) {
-            $this->set();
+            $setResult = $this->set();
+
+            //error in set processment
+            if( is_array( $setResult ) && $setResult['code'] != 0)
+                return $thus->output(null, $setResult );
         }
 
         if(!$this->tracks) {
@@ -77,8 +81,12 @@ class Playlist extends \Webservice\ThisDayInMusic {
         $artists = $artistRepository->findBy(array("hasTracks" => NULL));
 
         #do not show playlist while the cron hasn't set all artist tracks
-        if( count( $artists ) )
-            return $this->output( null, array("code" => -2, "status" => "No tracks for playlist found. Please try again later.") );#TODO: fix json error here
+        if( count( $artists ) ) {
+            return array(
+                "code" => -2,
+                "status" => "No tracks for playlist found. Please try again later."
+            );
+        }
 
         #find tracks for each artist and create a playlist with a track for each one of the artists
         foreach ( $events as $event ) {
@@ -119,6 +127,8 @@ class Playlist extends \Webservice\ThisDayInMusic {
             //set the total tracks in the attribute
             $this->total = $this->total();
         }
+
+        return 1;
     }
 
     protected function prettifyResults( $results ) {
@@ -154,7 +164,6 @@ class Playlist extends \Webservice\ThisDayInMusic {
         $what  = $query['what'];
         $where = $query['where'];
 
-        //TODO: change this query builder to criteria matching
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select( $what )
             ->from('Playlist', 'p')
