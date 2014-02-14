@@ -137,12 +137,13 @@ class Playlist extends \Webservice\ThisDayInMusic {
     protected function prettifyResults( $results ) {
         $data = array();
         foreach( $results as $track) {
-            $event = 
+            $event = $track->getEvent();
+
             $info = array(
                 'name'      => $track->getName(),
                 'artist'    => $track->getArtist()->getname(),
                 'spotifyId' => $track->getSpotifyId(),
-                'event'     => $track->getEvent() ? "[" . $track->getEvent()->getType() . "] " .  $track->getEvent()->getDescription() : "",
+                'event'     => $event ? $event->getDate()->format('Y-m-d') . " - [" . $event->getType() . "] " . $event->getDescription() : "",
             );
             array_push( $data, $info );
         }
