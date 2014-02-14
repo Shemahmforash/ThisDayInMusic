@@ -98,11 +98,13 @@ class Playlist extends \Webservice\ThisDayInMusic {
                 continue;
             }
 
-            $tracks = $artist->getTracks()->toArray();
+            $tracks = $artist->getUnPublishedTracks();
 
-            #get the first track without event
+            #ignore artists with all the tracks already published
+            if( !count($tracks) )
+                continue;
+
             $track = array_shift( $tracks );
-            #TODO: Find the first unpublished track! and set it as published.
 
             $event->setTrack( $track );
             $track->assignToEvent( $event );

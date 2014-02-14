@@ -48,7 +48,6 @@ class Playlist {
     public function setDate(DateTime $date) {
         $this->date = $date;
     }
-
 }
 
 ?>

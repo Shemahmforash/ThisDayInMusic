@@ -60,11 +60,25 @@ class Artist {
         return $this->events;
     }
 
+    /*Getters and setters*/
     public function getTracks() {
         return $this->tracks;
     }
 
-    /*Getters and setters*/
+    //only tracks with events
+    public function getPublishedTracks() {
+        $tracks = $this->tracks->toArray();
+
+        return array_filter( $tracks, function( $track ) { return $track->getEvent() ? 1 : 0; } );
+    }
+
+    //only tracks without events
+    public function getUnPublishedTracks() {
+        $tracks = $this->tracks->toArray();
+
+        return array_filter( $tracks, function( $track ) { return $track->getEvent() ? 0 : 1; } );
+    }
+
     public function getId() {
         return $this->id;
     }
