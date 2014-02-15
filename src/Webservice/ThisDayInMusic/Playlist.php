@@ -145,6 +145,8 @@ class Playlist extends \Webservice\ThisDayInMusic {
             //use the fields received in request
             $info = array();
 
+            if( in_array("date", $this->fields) )
+                $info['date'] = $this->date->format('Y-m-d');
             if( in_array("name", $this->fields) )
                 $info['name'] = $track->getName();
             if( in_array("artist", $this->fields) )

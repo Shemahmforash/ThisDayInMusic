@@ -56,7 +56,7 @@ abstract class ThisDayInMusic {
     abstract protected function prettifyResults( $results );
 
     //output the webservice results
-    protected function output ($results, $error = null ) {
+    public function output ($results, $error = null ) {
         header('Content-type: application/json');
 
         if( $error ) {
@@ -79,23 +79,6 @@ abstract class ThisDayInMusic {
             $response[ $this->resultName() ] = $data;
             $response['pagination'] = array("total" => intval($this->total), "offset" => $this->offset, "results" => count( $results ) );
         }
-
-        $output = array(
-            'response' => $response
-        );
-
-        echo json_encode($output);
-    }
-
-    public static function outputError( $error ) {
-        header('Content-type: application/json');
-        $code = $error['code'];
-        $status = $error['status'];
-        $data = array();
-
-        $response = array(
-                "status" => array("version" => self::VERSION, "code" => $code, "status" => $status ),
-            );
 
         $output = array(
             'response' => $response

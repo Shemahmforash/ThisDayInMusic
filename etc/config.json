@@ -29,6 +29,7 @@
             ],
             "accepted" : [
                 "id",
+                "date",
                 "name",
                 "artist",
                 "spotifyId",

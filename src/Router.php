@@ -11,14 +11,13 @@ class Router {
         $pattern = sprintf("/^\/api\/v%s\/(?P<action>[^\/]+)\/?$/", \Webservice\ThisDayInMusic::VERSION );
         preg_match($pattern, $path['path'], $match);
 
+        if( !count( $match ) )
+            return \Webservice\ThisDayInMusic::output(null, array("code" => -7, "status" => "Invalid uri supplied to the webservice. Please check the documentation." ));
+
         $action = ucfirst( $match['action'] );
-
-        if(!$action)
-            return \Webservice\ThisDayInMusic::outputError(array("code" => -6, "status" => "Invalid action supplied to the webservice. Please check the documentation." ));
-
         $class = "\Webservice\ThisDayInMusic\\$action";
         if (!class_exists($class)) {
-            return \Webservice\ThisDayInMusic::outputError(array("code" => -6, "status" => "Invalid action supplied to the webservice. Please check the documentation." ));
+            return \Webservice\ThisDayInMusic::output(null, array("code" => -7, "status" => "Invalid action supplied to the webservice. Please check the documentation." ));
         }
 
         return $class;
