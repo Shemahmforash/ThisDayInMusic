@@ -48,7 +48,7 @@ class Playlist extends \Webservice\ThisDayInMusic {
             try {
                 $playlist = $query->getSingleResult();
             } catch (\Doctrine\ORM\NoResultException $e ) {
-                return $this->output( null, array("code" => -2, "status" => "No tracks for playlist found.") );
+                return $this->output( null, array("code" => -2, "status" => "No tracks for playlist found. Please try again later.") );
             }
 
             $this->tracks = $playlist->getTracks();
@@ -66,7 +66,7 @@ class Playlist extends \Webservice\ThisDayInMusic {
         }
 
         if( !$this->total() ) {
-            return $this->output( null, array("code" => -2, "status" => "No tracks for playlist found.") );
+            return $this->output( null, array("code" => -2, "status" => "No tracks for playlist found. Please try again later.") );
         }
 
         $this->output($this->tracks);
