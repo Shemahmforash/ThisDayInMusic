@@ -9,7 +9,7 @@ class Event extends \Webservice\ThisDayInMusic {
     public function __construct( $entityManager, $config ) {
         $this->results = $config['pagination']['results'];
         $this->offset  = $config['pagination']['offset'];
-        $this->fields  = $config['fields']['default'];
+        $this->fields  = $config['fields'][ $this->resultName() ]['default'];
 
         parent::__construct( $entityManager, $config );
     }
@@ -149,7 +149,7 @@ class Event extends \Webservice\ThisDayInMusic {
                 null,
                 array(
                     "code" => -3,
-                    "status" => "Could not find events for " . $this->date("Y-m-d" ) . ". Please try again later."
+                    "status" => "Could not find events for " . $this->date->format("Y-m-d" ) . ". Please try again later."
                 )
             );
         }

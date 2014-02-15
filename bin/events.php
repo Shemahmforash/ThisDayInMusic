@@ -1,5 +1,8 @@
 <?php
 
+//cron each once a day at 00:00
+// 0 0 * * * /usr/bin/php pathtoproject/bin/artistTracks.php
+
 require_once __DIR__ . "/../vendor/autoload.php";
 require_once __DIR__ . "/../bootstrap.php";
 

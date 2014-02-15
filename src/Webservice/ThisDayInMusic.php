@@ -153,10 +153,11 @@ abstract class ThisDayInMusic {
     }
 
     protected function sanitizeParameters( $parameters ) {
+
         //check valid parameters
         foreach ($parameters as $key => $value) {
-            if(!in_array($key, $this->config['parameters'])) {
-                return array("code" => -3, "status" => "Parameters '$key' is not accepted.");     
+            if(!in_array($key, $this->config['parameters'][ $this->resultName() ])) {
+                return array("code" => -3, "status" => "Parameter '$key' is not accepted.");     
             }
         }
 
@@ -173,7 +174,7 @@ abstract class ThisDayInMusic {
 
             $fields = array();
             foreach( $parameters['fields'] as $field) {
-                if( in_array($field, $this->config['fields']['accepted'] ) && !in_array($field, $fields) ) {
+                if( in_array($field, $this->config['fields'][ $this->resultName() ]['accepted'] ) && !in_array($field, $fields) ) {
                     array_push( $fields, $field);     
                 }
                 else {

@@ -5,23 +5,41 @@
         "max_results" : 50
     },
     "fields" : {
-        "default":  [
-            "date",
-            "description",
-            "type"
-        ],
-        "accepted" : [
-            "date",
-            "description",
-            "type",
-            "tweeted",
-            "id",
-            "artist"
-        ]
+        "events": {
+            "default":  [
+                "date",
+                "description",
+                "type"
+            ],
+            "accepted" : [
+                "date",
+                "description",
+                "type",
+                "tweeted",
+                "id",
+                "artist"
+            ]
+        },
+        "tracks": {
+            "default":  [
+                "name",
+                "artist",
+                "spotifyId",
+                "event"
+            ],
+            "accepted" : [
+                "id",
+                "name",
+                "artist",
+                "spotifyId",
+                "event"
+            ]
+        }
     },
-    "parameters": [
-        "results", "offset", "day", "month", "fields", "type", "tweeted", "id", "artist" 
-    ],
+    "parameters": {
+        "events" : ["results", "offset", "day", "month", "fields", "type", "tweeted", "id", "artist" ],
+        "tracks" : ["results", "offset", "day", "month", "fields", "id", "artist" ]
+    },
     "echonest": {
            "key": "2FOIUUMCRLFMAWJXT"
     }

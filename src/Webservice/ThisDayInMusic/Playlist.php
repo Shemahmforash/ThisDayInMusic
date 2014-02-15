@@ -8,6 +8,7 @@ class Playlist extends \Webservice\ThisDayInMusic {
 
     public function __construct( $entityManager, $config ) {
         $this->offset  = $config['pagination']['offset'];
+        $this->fields  = $config['fields'][ $this->resultName() ]['default'];
 
         parent::__construct( $entityManager, $config );
     }
@@ -141,12 +142,18 @@ class Playlist extends \Webservice\ThisDayInMusic {
         foreach( $results as $track) {
             $event = $track->getEvent();
 
-            $info = array(
-                'name'      => $track->getName(),
-                'artist'    => $track->getArtist()->getname(),
-                'spotifyId' => $track->getSpotifyId(),
-                'event'     => $event ? $event->getDate()->format('Y-m-d') . " - [" . $event->getType() . "] " . $event->getDescription() : "",
-            );
+            //use the fields received in request
+            $info = array();
+
+            if( in_array("name", $this->fields) )
+                $info['name'] = $track->getName();
+            if( in_array("artist", $this->fields) )
+                $info['artist'] = $track->getArtist()->getName();
+            if( in_array("spotifyId", $this->fields) )
+                $info['spotifyId'] = $track->getSpotifyId();
+            if( in_array("event", $this->fields) )
+                $info['event'] = $event ? $event->getDate()->format('Y-m-d') . " - [" . $event->getType() . "] " . $event->getDescription() : "";
+
             array_push( $data, $info );
         }
 
