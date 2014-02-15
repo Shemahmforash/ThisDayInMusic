@@ -8,7 +8,8 @@ class Router {
 
         $path = parse_url( $uri );
 
-        preg_match("/^\/(?P<action>[^\/]+)\/?$/", $path['path'], $match);
+        $pattern = sprintf("/^\/api\/v%s\/(?P<action>[^\/]+)\/?$/", \Webservice\ThisDayInMusic::VERSION );
+        preg_match($pattern, $path['path'], $match);
 
         $action = ucfirst( $match['action'] );
 
