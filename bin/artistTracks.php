@@ -28,7 +28,16 @@ foreach ( $artists as $artist ) {
 
     error_log( "processing $name" );
 
-    $query = http_build_query(array( 'artist' => $name,  'bucket' => array('id:spotify-WW', 'tracks'), 'limit'  => "true", "results" => 10));
+    $spotifyId = $artist->getSpotifyId();
+
+    $parameters = array('bucket' => array('id:spotify-WW', 'songs'), 'limit'  => "true", "results" => 10);
+    if( $spotifyId )
+        $parameters['id'] = $spotifyId;
+    else
+        $parameters['artist'] = $name;
+    
+#    $query = http_build_query(array( 'artist' => $name,  'bucket' => array('id:spotify-WW', 'tracks'), 'limit'  => "true", "results" => 10));
+    $query = http_build_quer($parameters);
     $query = preg_replace("/\%5B\d+\%5D/im", "", $query); 
 
     Echonest\Service\Echonest::configure("2FOIUUMCRLFMAWJXT");

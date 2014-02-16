@@ -121,9 +121,6 @@ function findEventArtist( $text ) {
 
         return $return;
     }
-    else {
-        return;
-    }
 }
 
 ?>

@@ -74,6 +74,7 @@ class Playlist extends \Webservice\ThisDayInMusic {
 
     protected function set() {
         #find all the events for this day, as well as the event artists and tracks
+        #TODO: should I ignore events of the type 'event'? (the artists are not exactly found in these ones)
         $query = $this->entityManager->createQuery('SELECT e,a FROM Event e JOIN e.artist a WHERE e.date LIKE :date');
         $query->setParameter("date", "%" . $this->date->format('m-d'));
         $events = $query->getResult();
