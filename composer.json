@@ -13,6 +13,7 @@
     ],
     "require": {
         "shemahmforash/thisdayin": "dev-master",
+        "echonest/echonest": "dev-master",
         "doctrine/orm": "2.*",
         "symfony/yaml": "2.*"
     },
@@ -20,6 +21,7 @@
         "phpunit/phpunit": "3.7.*"
     },
     "autoload": {
-        "psr-0": {"": "src/"}
+        "psr-4": {"": "src/"},
+        "psr-0": {"": "database/"}
     }
 }

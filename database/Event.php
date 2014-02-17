@@ -1,9 +1,11 @@
 <?php
 // src/Event.php
+
 /**
  * @Entity @Table(name="Event")
-  **/
+**/
 class Event {
+
     /**
      * @var int
      */
@@ -36,6 +38,16 @@ class Event {
 
     /** @Column(type="boolean") **/
     protected $tweeted = 0;
+
+    /**
+     * @ManyToOne(targetEntity="Artist", inversedBy="events")
+     **/ 
+    protected $artist;
+
+    /**
+     * @OneToOne(targetEntity="Track", inversedBy="event")
+     **/ 
+    protected $track;
 
     public function getId() {
         return $this->id;
@@ -79,5 +91,21 @@ class Event {
 
     public function setTweeted($tweeted) {
         $this->tweeted = $tweeted;
+    }
+
+    public function getArtist() {
+        return $this->artist;
+    }
+
+    public function setArtist($artist) {
+        $this->artist =  $artist;
+    }
+
+    public function getTrack() {
+        return $this->track;
+    }
+
+    public function setTrack($track) {
+        $this->track = $track;
     }
 }
