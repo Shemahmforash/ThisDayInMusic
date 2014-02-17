@@ -140,7 +140,7 @@ abstract class ThisDayInMusic {
         //check valid parameters
         foreach ($parameters as $key => $value) {
             if(!in_array($key, $this->config['parameters'][ $this->resultName() ])) {
-                return array("code" => -3, "status" => "Parameter '$key' is not accepted.");     
+                return array("code" => 2, "status" => "Parameter '$key' is not accepted.");     
             }
         }
 
@@ -161,7 +161,7 @@ abstract class ThisDayInMusic {
                     array_push( $fields, $field);     
                 }
                 else {
-                    return array("code" => -4, "status" => "Field '$field' is not accepted.");     
+                    return array("code" => 2, "status" => "Field '$field' is not accepted.");     
                 }
 
             }

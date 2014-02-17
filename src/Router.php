@@ -12,12 +12,12 @@ class Router {
         preg_match($pattern, $path['path'], $match);
 
         if( !count( $match ) )
-            return \Webservice\ThisDayInMusic::output(null, array("code" => -7, "status" => "Invalid uri supplied to the webservice. Please check the documentation." ));
+            return \Webservice\ThisDayInMusic::output(null, array("code" => 1, "status" => "Invalid uri supplied to the webservice. Please check the documentation." ));
 
         $action = ucfirst( $match['action'] );
         $class = "\Webservice\ThisDayInMusic\\$action";
         if (!class_exists($class)) {
-            return \Webservice\ThisDayInMusic::output(null, array("code" => -7, "status" => "Invalid action supplied to the webservice. Please check the documentation." ));
+            return \Webservice\ThisDayInMusic::output(null, array("code" => 1, "status" => "Invalid action supplied to the webservice. Please check the documentation." ));
         }
 
         return $class;
