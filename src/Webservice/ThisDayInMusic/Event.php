@@ -148,7 +148,7 @@ class Event extends \Webservice\ThisDayInMusic {
             return $this->output( 
                 null,
                 array(
-                    "code" => -3,
+                    "code" => 3,
                     "status" => "Could not find events for " . $this->date->format("Y-m-d" ) . ". Please try again later."
                 )
             );
@@ -165,14 +165,14 @@ class Event extends \Webservice\ThisDayInMusic {
 
         //error
         if( $this->offset > $this->total) {
-            return $this->output( null, array("code" => -1, "status" => "Offset ($this->offset) is larger than the total results ($this->total)") );
+            return $this->output( null, array("code" => 2, "status" => "Offset ($this->offset) is larger than the total results ($this->total)") );
         }
 
         //get events from the db
         $events = $this->getEvents();
 
         if( !$events ) {
-            return $this->output( null, array("code" => -2, "status" => "No events found.") );
+            return $this->output( null, array("code" => 3, "status" => "No events found. Please try again later.") );
         }
 
         $this->output($events);

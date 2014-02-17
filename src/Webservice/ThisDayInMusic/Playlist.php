@@ -48,7 +48,7 @@ class Playlist extends \Webservice\ThisDayInMusic {
             try {
                 $playlist = $query->getSingleResult();
             } catch (\Doctrine\ORM\NoResultException $e ) {
-                return $this->output( null, array("code" => -2, "status" => "No tracks for playlist found. Please try again later.") );
+                return $this->output( null, array("code" => 3, "status" => "No tracks for playlist found. Please try again later.") );
             }
 
             $this->tracks = $playlist->getTracks();
@@ -62,11 +62,11 @@ class Playlist extends \Webservice\ThisDayInMusic {
 
         //error
         if( $this->offset > $this->total) {
-            return $this->output( null, array("code" => -1, "status" => "Offset ($this->offset) is larger than the total results ($this->total)") );
+            return $this->output( null, array("code" => 2, "status" => "Offset ($this->offset) is larger than the total results ($this->total)") );
         }
 
         if( !$this->total() ) {
-            return $this->output( null, array("code" => -2, "status" => "No tracks for playlist found. Please try again later.") );
+            return $this->output( null, array("code" => 3, "status" => "No tracks for playlist found. Please try again later.") );
         }
 
         $this->output($this->tracks);
@@ -85,7 +85,7 @@ class Playlist extends \Webservice\ThisDayInMusic {
         #do not show playlist while the cron hasn't set all artist tracks
         if( count( $artists ) ) {
             return array(
-                "code" => -2,
+                "code" => 3,
                 "status" => "No tracks for playlist found. Please try again later."
             );
         }
