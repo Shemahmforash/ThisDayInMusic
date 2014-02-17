@@ -6,7 +6,15 @@
 require_once __DIR__ . "/../vendor/autoload.php";
 require_once __DIR__ . "/../bootstrap.php";
 
-$date = new DateTime("now");
+$str = file_get_contents( __DIR__ . "/date.txt");
+
+#$date = new DateTime("now");
+$date = new \DateTime($str);
+
+if( $date->format('Y-m-d' ) >= "2014-04-01" ) {
+    error_log( "Date out of range: " . $date->format('Y-m-d') ); 
+    exit;
+}
 
 $query = $entityManager->createQuery('SELECT count(e) FROM Event e WHERE e.date LIKE :date');
 $query->setParameter("date", "%" . $date->format('m-d'));
@@ -14,8 +22,12 @@ $eventNumber = $query->getSingleScalarResult();
 
 if( $eventNumber ) {
     error_log( "events for " . $date->format('Y-m-d') . " already exist. Exitting script." );
+    date_add($date, date_interval_create_from_date_string('1 days'));
+    $str = file_put_contents(__DIR__ . "/date.txt", $date->format("Y-m-d")  );
     exit;
 }
+
+error_log("date: " . $date->format('Y-m-d') );
 
 $dim = new \ThisDayIn\Music($date->format('j'), $date->format('F'));
 $evs = $dim->getEvents();
@@ -81,6 +93,9 @@ foreach($evs as $ev ) {
 if( count( $evs ) ) {
     $entityManager->flush();
 }
+
+date_add($date, date_interval_create_from_date_string('1 days'));
+$str = file_put_contents(__DIR__ . "/date.txt", $date->format("Y-m-d")  );
 
 function findEventArtist( $text ) {
 
