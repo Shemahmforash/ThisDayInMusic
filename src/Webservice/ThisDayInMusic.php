@@ -205,6 +205,9 @@ abstract class ThisDayInMusic {
             error_log( "no trackless artists. Exit" );
             return;
         }
+        else {
+            error_log( count( $artists ) . "artist(s) to process." );
+        }
 
         foreach ( $artists as $artist ) {
             $name = $artist->getName();
