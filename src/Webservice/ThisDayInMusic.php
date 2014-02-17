@@ -202,7 +202,7 @@ abstract class ThisDayInMusic {
         $artists = $artistRepository->findBy(array("hasTracks" => NULL));
 
         if( count( $artists ) == 0  ) {
-            error_log( "no trackless artists." );
+            error_log( "no trackless artists. Exit" );
             return;
         }
 
@@ -222,17 +222,17 @@ abstract class ThisDayInMusic {
 
             $spotifyId = $artist->getSpotifyId();
 
-            $parameters = array('bucket' => array('id:spotify-WW', 'songs'), 'limit'  => "true", "results" => 10);
+            $parameters = array('bucket' => array('id:spotify-WW', 'tracks'), 'limit'  => "true", "results" => 10);
             if( $spotifyId )
-                $parameters['id'] = $spotifyId;
+                $parameters['artist_id'] = $spotifyId;
             else
                 $parameters['artist'] = $name;
             
-            $query = http_build_quer($parameters);
+            $query = http_build_query($parameters);
             $query = preg_replace("/\%5B\d+\%5D/im", "", $query); 
 
             \Echonest\Service\Echonest::configure($config['echonest']['key']);
-            $response = Echonest\Service\Echonest::query('song', 'search', $query);
+            $response = \Echonest\Service\Echonest::query('song', 'search', $query);
 
             $response = $response->response;
 
