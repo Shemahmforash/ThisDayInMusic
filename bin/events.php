@@ -10,16 +10,16 @@ $str = file_get_contents( __DIR__ . "/date.txt");
 
 #$date = new DateTime("now");
 $date = new \DateTime($str);
+$limit = new \Datetime("2014-12-31");
 
-#TODO: fix this comparison, it does not work like this
-if( $date->format('Y-m-d' ) >= "2014-04-01" ) {
+if( $date > $limit ) {
     error_log( "Date out of range: " . $date->format('Y-m-d') ); 
     exit;
 }
 
 $result = \Webservice\ThisDayInMusic::findEvents( $entityManager, $date );
 if( $result == 0 ) {
-    error_log( "All events for " . $data->format('Y-m-d') . " imported sucessfully."); 
+    error_log( "All events for " . $date->format('Y-m-d') . " imported sucessfully."); 
 }
 
 date_add($date, date_interval_create_from_date_string('1 days'));
