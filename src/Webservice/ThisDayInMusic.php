@@ -199,7 +199,12 @@ abstract class ThisDayInMusic {
         $config = json_decode( $file, true );
 
         $artistRepository = $entityManager->getRepository('Artist');
-        $artists = $artistRepository->findBy(array("hasTracks" => NULL));
+        $artists = $artistRepository->findBy(
+            array('hasTracks' => NULL),// $where 
+            array('name' => 'ASC'),    // $orderBy
+            30,                        // $limit
+            0                          // $offset
+        );
 
         if( count( $artists ) == 0  ) {
             error_log( "no trackless artists. Exit" );
@@ -324,7 +329,6 @@ abstract class ThisDayInMusic {
             $event->setDescription( $ev['description'] ); 
             $event->setType( $ev['type'] ); 
             $event->setSource( $dim->getSource() ); 
-            $entityManager->persist( $event );
 
             //connects the event to an artist
             if( $ev['name'] ) {
@@ -336,14 +340,14 @@ abstract class ThisDayInMusic {
                     $artist = new \Artist();
                     $artist->setName( $ev['name'] );
 
-                    $event->setArtist( $artist );
-
                     if(isset( $ev['spotifyId'] ) )
                         $artist->setSpotifyId($ev['spotifyId']);
                 }
 
                 error_log("artist name: " . $artist->getName() );
 
+                $event->setArtist( $artist );
+                $entityManager->persist( $event );
                 $artist->assignToEvent( $event );
 
                 $entityManager->persist( $artist );
@@ -351,6 +355,8 @@ abstract class ThisDayInMusic {
                 #one must save here so it copes for repeated artist in the event list
                 $entityManager->flush();
             }
+
+            $entityManager->persist( $event );
         }
 
         //insert all events to db
