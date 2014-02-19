@@ -107,7 +107,7 @@ class Event extends \Webservice\ThisDayInMusic {
     }
 
     private function put( $parameters ) {
-        preg_match("/^event\/(?P<id>\d+)$/", $parameters, $match);
+        preg_match("/^api\/v0.1\/event\/(?P<id>\d+)$/", $parameters, $match);
 
         if( !isset($match['id']) ) {
             header('HTTP/1.1 400 Bad Request');

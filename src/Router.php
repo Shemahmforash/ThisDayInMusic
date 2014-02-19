@@ -8,7 +8,7 @@ class Router {
 
         $path = parse_url( $uri );
 
-        $pattern = sprintf("/^\/api\/v%s\/(?P<action>[^\/]+)\/?$/", \Webservice\ThisDayInMusic::VERSION );
+        $pattern = sprintf("/^\/api\/v%s\/(?P<action>[^\/]+)(\/.*)?$/", \Webservice\ThisDayInMusic::VERSION );
         preg_match($pattern, $path['path'], $match);
 
         if( !count( $match ) )
