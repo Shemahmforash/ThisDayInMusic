@@ -11,8 +11,8 @@ This is a webservice with information about what happened in this day in music h
 ## Documentation
 
 ### Response Codes
-0  - Success
--1 - Unknown error
-1  - Invalid uri supplied to the Webservice
-2  - Invalid parameter
-3  - No data was found
+   * 0  - Success
+   * -1 - Unknown error
+   * 1  - Invalid uri supplied to the Webservice
+   * 2  - Invalid parameter
+   * 3  - No data was found
