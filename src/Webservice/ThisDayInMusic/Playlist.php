@@ -36,7 +36,7 @@ class Playlist extends \Webservice\ThisDayInMusic {
 
             //error in set processment
             if( is_array( $setResult ) && $setResult['code'] != 0)
-                return $thus->output(null, $setResult );
+                return $this->output(null, $setResult );
         }
 
         if(!$this->tracks) {
