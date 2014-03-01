@@ -21,6 +21,7 @@ abstract class ThisDayInMusic {
     protected $id;
     protected $fields;
     protected $offset;
+    protected $results;
 
     public function __construct( $entityManager, $config ) {
         $this->config = $config;

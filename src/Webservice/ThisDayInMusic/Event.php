@@ -4,8 +4,6 @@ namespace Webservice\ThisDayInMusic;
 
 class Event extends \Webservice\ThisDayInMusic {
 
-    private $results;
-
     public function __construct( $entityManager, $config ) {
         $this->results = $config['pagination']['results'];
         $this->offset  = $config['pagination']['offset'];
