@@ -56,7 +56,7 @@ class Event extends \Webservice\ThisDayInMusic {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select( $what )
             ->from('Event', 'e')
-            ->innerJoin('Artist', 'a', 'WITH', "a.id = e.artist")
+            ->leftJoin('Artist', 'a', 'WITH', "a.id = e.artist")
             ->where( $where['query'] )
             ->setParameters( $where['parameters'] );
 
@@ -76,7 +76,7 @@ class Event extends \Webservice\ThisDayInMusic {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select( $what )
             ->from('Event', 'e')
-            ->innerJoin('Artist', 'a', 'WITH', "a.id = e.artist")
+            ->leftJoin('Artist', 'a', 'WITH', "a.id = e.artist")
             ->where( $where['query'] )
             ->setParameters( $where['parameters'] );
         $count = $qb->getQuery()->getSingleScalarResult();
@@ -93,7 +93,7 @@ class Event extends \Webservice\ThisDayInMusic {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select( $what )
             ->from('Event', 'e')
-            ->innerJoin('Artist', 'a', 'WITH', "a.id = e.artist")
+            ->leftJoin('Artist', 'a', 'WITH', "a.id = e.artist")
             ->where( $where['query'] )
             ->orderBy('e.id', 'ASC')
             ->setFirstResult( $this->offset )
