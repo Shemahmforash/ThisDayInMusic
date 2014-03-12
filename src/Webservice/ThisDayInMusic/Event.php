@@ -162,8 +162,8 @@ class Event extends \Webservice\ThisDayInMusic {
         }
 
         //error
-        if( $this->offset > $this->total) {
-            return $this->output( null, array("code" => 2, "status" => "Offset ($this->offset) is larger than the total results ($this->total)") );
+        if( $this->offset >= $this->total) {
+            return $this->output( null, array("code" => 2, "status" => "Offset ($this->offset) is equal or larger than the total results ($this->total)") );
         }
 
         //get events from the db
