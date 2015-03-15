@@ -1,0 +1,47 @@
+{
+    "pagination" : {
+        "results"     : 15,
+        "offset"      : 0,
+        "max_results" : 50
+    },
+    "fields" : {
+        "events": {
+            "default":  [
+                "date",
+                "description",
+                "type"
+            ],
+            "accepted" : [
+                "date",
+                "description",
+                "type",
+                "tweeted",
+                "id",
+                "artist"
+            ]
+        },
+        "tracks": {
+            "default":  [
+                "name",
+                "artist",
+                "spotifyId",
+                "event"
+            ],
+            "accepted" : [
+                "id",
+                "date",
+                "name",
+                "artist",
+                "spotifyId",
+                "event"
+            ]
+        }
+    },
+    "parameters": {
+        "events" : ["results", "offset", "day", "month", "fields", "type", "tweeted", "id", "artist" ],
+        "tracks" : ["day", "month", "fields"]
+    },
+    "echonest": {
+           "key": "2FOIUUMCRLFMAWJXT"
+    }
+}
