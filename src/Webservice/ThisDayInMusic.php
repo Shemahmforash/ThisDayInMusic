@@ -89,6 +89,8 @@ abstract class ThisDayInMusic {
     }
 
     protected function buildQuery( $what = null, $useParameters = 1 ) {
+        $toReturn = array();
+
         //build the columns to show from the parameters
         if( !$what ) {
             $fields = array();
@@ -102,6 +104,8 @@ abstract class ThisDayInMusic {
             }
             $what = join(", ", $fields);
         }
+
+        $toReturn['what'] = $what;
 
         //build the where part from the parameters
         $where['parameters'] = array(
@@ -121,19 +125,25 @@ abstract class ThisDayInMusic {
             }
         }
 
+        if( $where['parameters']['orderby'] ) {
+            $orderby = $where['parameters']['orderby'];
+            unset ( $where['parameters']['orderby'] );
+
+            $toReturn['orderBy'] = $orderBy;
+        }
+
         foreach( $where['parameters'] as $key => $parameter ) {
             if( $key == 'id' or $key == 'tweeted')
                 array_push($where['query'], $this->tableAbbr() . ".$key = :$key");
-            else 
+            else
                 array_push($where['query'], $this->tableAbbr() . ".$key like :$key");
         }
 
         $where['query'] = join(" and ", $where['query']);
 
-        return array (
-                'what'  => $what,
-                'where' => $where
-            );
+        $toReturn['where'] = $where;
+
+        return $toReturn;
     }
 
     protected function sanitizeParameters( $parameters ) {

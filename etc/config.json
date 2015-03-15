@@ -38,7 +38,7 @@
         }
     },
     "parameters": {
-        "events" : ["results", "offset", "day", "month", "fields", "type", "tweeted", "id", "artist" ],
+        "events" : ["results", "offset", "day", "month", "fields", "type", "tweeted", "id", "artist", "orderby" ],
         "tracks" : ["day", "month", "fields"]
     },
     "echonest": {

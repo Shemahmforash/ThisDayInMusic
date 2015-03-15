@@ -87,15 +87,16 @@ class Event extends \Webservice\ThisDayInMusic {
     private function getEvents() {
         $query = $this->buildQuery();
 
-        $what  = $query['what'];
-        $where = $query['where'];
+        $what    = $query['what'];
+        $where   = $query['where'];
+        $orderBy = $query['orderBy'] ? $query['orderBy'] : 'e.id';
 
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select( $what )
             ->from('Event', 'e')
             ->leftJoin('Artist', 'a', 'WITH', "a.id = e.artist")
             ->where( $where['query'] )
-            ->orderBy('e.id', 'ASC')
+            ->orderBy($orderBy, 'ASC')
             ->setFirstResult( $this->offset )
             ->setMaxResults( $this->results )
             ->setParameters( $where['parameters'] );
