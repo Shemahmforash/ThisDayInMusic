@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Artist extends Model
 {
+
+        public $timestamps = false;
+
     /**
      * Get the tracks for this artist.
      */

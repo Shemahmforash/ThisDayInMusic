@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Track extends Model
 {
 
+    public $timestamps = false;
+
     /**
      * the artist of the track
      * @return Eloquent relationship
