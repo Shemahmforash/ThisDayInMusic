@@ -1,0 +1,5 @@
+suites:
+    main:
+        namespace: ThisDayInMusic
+        psr4_prefix: ThisDayInMusic
+        src_path: app
