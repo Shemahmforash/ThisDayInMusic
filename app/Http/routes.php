@@ -11,6 +11,18 @@
 |
 */
 
+$api = app('api.router');
+
+$api->version(['version' => 'v1'], function ($api) {
+    $api->group(['prefix' => 'api'], function ($api) {
+
+        $api->get('users', function () {
+            return ['users' => 'all'];
+        });
+
+    });
+});
+
 Route::get('/', function () {
     return view('welcome');
 });

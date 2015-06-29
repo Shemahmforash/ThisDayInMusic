@@ -143,6 +143,7 @@ return [
         ThisDayInMusic\Providers\AppServiceProvider::class,
         ThisDayInMusic\Providers\EventServiceProvider::class,
         ThisDayInMusic\Providers\RouteServiceProvider::class,
+        Dingo\Api\Provider\LaravelServiceProvider::class,
 
     ],
 
