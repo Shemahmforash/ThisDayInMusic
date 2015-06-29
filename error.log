@@ -1,0 +1,25 @@
+[2015-06-29 18:57:27] local.ERROR: exception 'ErrorException' with message 'Argument 2 passed to Dingo\Api\Exception\Handler::__construct() must be of the type array, null given, called in /code/php/thisday
+inmusic/vendor/dingo/api/src/Provider/ApiServiceProvider.php on line 119 and defined' in /code/php/thisdayinmusic/vendor/dingo/api/src/Exception/Handler.php:59
+Stack trace:
+#0 /code/php/thisdayinmusic/vendor/dingo/api/src/Exception/Handler.php(59): Illuminate\Foundation\Bootstrap\HandleExceptions->handleError(4096, 'Argument 2 pass...', '/code/php/thisd...', 59, Array)
+#1 /code/php/thisdayinmusic/vendor/dingo/api/src/Provider/ApiServiceProvider.php(119): Dingo\Api\Exception\Handler->__construct(Object(ThisDayInMusic\Exceptions\Handler), NULL, NULL)
+#2 /code/php/thisdayinmusic/vendor/laravel/framework/src/Illuminate/Container/Container.php(733): Dingo\Api\Provider\ApiServiceProvider->Dingo\Api\Provider\{closure}(Object(Illuminate\Foundation\Application
+), Array)
+#3 /code/php/thisdayinmusic/vendor/laravel/framework/src/Illuminate/Container/Container.php(626): Illuminate\Container\Container->build(Object(Closure), Array)
+#4 /code/php/thisdayinmusic/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(674): Illuminate\Container\Container->make('api.exception', Array)
+#5 /code/php/thisdayinmusic/vendor/laravel/framework/src/Illuminate/Container/Container.php(1157): Illuminate\Foundation\Application->make('api.exception')
+#6 /code/php/thisdayinmusic/vendor/dingo/api/src/Provider/ApiServiceProvider.php(186): Illuminate\Container\Container->offsetGet('api.exception')
+#7 /code/php/thisdayinmusic/vendor/laravel/framework/src/Illuminate/Container/Container.php(733): Dingo\Api\Provider\ApiServiceProvider->Dingo\Api\Provider\{closure}(Object(Illuminate\Foundation\Application
+), Array)
+#8 /code/php/thisdayinmusic/vendor/laravel/framework/src/Illuminate/Container/Container.php(626): Illuminate\Container\Container->build(Object(Closure), Array)
+#9 /code/php/thisdayinmusic/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(674): Illuminate\Container\Container->make('api.router', Array)
+#10 /code/php/thisdayinmusic/vendor/laravel/framework/src/Illuminate/Container/Container.php(1157): Illuminate\Foundation\Application->make('api.router')
+#11 /code/php/thisdayinmusic/vendor/dingo/api/src/Provider/ApiServiceProvider.php(263): Illuminate\Container\Container->offsetGet('api.router')
+#12 /code/php/thisdayinmusic/vendor/laravel/framework/src/Illuminate/Container/Container.php(733): Dingo\Api\Provider\ApiServiceProvider->Dingo\Api\Provider\{closure}(Object(Illuminate\Foundation\Applicatio
+n), Array)
+#13 /code/php/thisdayinmusic/vendor/laravel/framework/src/Illuminate/Container/Container.php(626): Illuminate\Container\Container->build(Object(Closure), Array)
+#14 /code/php/thisdayinmusic/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(674): Illuminate\Container\Container->make('Dingo\\Api\\Http\\...', Array)
+#15 /code/php/thisdayinmusic/vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php(135): Illuminate\Foundation\Application->make('Dingo\\Api\\Http\\...')
+#16 /code/php/thisdayinmusic/public/index.php(58): Illuminate\Foundation\Http\Kernel->terminate(Object(Illuminate\Http\Request), Object(Illuminate\Http\Response))
+#17 {main}                                                                                                                                                                                                    
+
