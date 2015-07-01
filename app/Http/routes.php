@@ -20,6 +20,10 @@ $api->version(['version' => 'v1'], function ($api) {
             return ['users' => 'all'];
         });
 
+        $api->get('admin', ['protected' => true, function () {
+            // This route requires authentication.
+        }]);
+
     });
 });
 
