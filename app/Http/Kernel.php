@@ -17,7 +17,7 @@ class Kernel extends HttpKernel
         \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
         \Illuminate\Session\Middleware\StartSession::class,
         \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-        \ThisDayInMusic\Http\Middleware\VerifyCsrfToken::class,
+        // \ThisDayInMusic\Http\Middleware\VerifyCsrfToken::class,
     ];
 
     /**
@@ -29,5 +29,7 @@ class Kernel extends HttpKernel
         'auth' => \ThisDayInMusic\Http\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'guest' => \ThisDayInMusic\Http\Middleware\RedirectIfAuthenticated::class,
+        'jwt.auth' => 'Tymon\JWTAuth\Middleware\GetUserFromToken',
+        'jwt.refresh' => 'Tymon\JWTAuth\Middleware\RefreshToken',
     ];
 }

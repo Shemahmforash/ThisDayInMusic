@@ -22,10 +22,17 @@ $api->version(['version' => 'v1'], function ($api) {
 
         $api->get('admin', ['protected' => true, function () {
             // This route requires authentication.
-        }]);
 
+            $user = app('Dingo\Api\Auth\Auth')->user();
+
+            return $user;
+
+            // return ['admin' => 'all'];
+        }]);
     });
 });
+
+Route::post('authenticate', 'AuthenticateController@authenticate');
 
 Route::get('/', function () {
     return view('welcome');

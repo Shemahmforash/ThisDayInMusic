@@ -50,3 +50,11 @@ $factory->define(\ThisDayInMusic\Playlist::class, function ($faker) {
         'spotify_id' => $faker->randomNumber,
     ];
 });
+
+$factory->define(\ThisDayInMusic\User::class, function ($faker) {
+    return [
+        'name' => $faker->sentence(3),
+        'email' => 'cmrosao@gmail.com',
+        'password' => Hash::make('secret'),
+    ];
+});
