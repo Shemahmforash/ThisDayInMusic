@@ -29,6 +29,13 @@ class TrackTransformer extends TransformerAbstract
         return $this->collection($events, new \ThisDayInMusic\Http\Transformers\EventTransformer);
     }
 
+    public function includePlaylists(\ThisDayInMusic\Track $track)
+    {
+        $playlists = $track->playlists;
+
+        return $this->collection($playlists, new \ThisDayInMusic\Http\Transformers\PlaylistTransformer);
+    }
+
     public function includeArtist(\ThisDayInMusic\Track $track)
     {
         $artist = $track->artist;

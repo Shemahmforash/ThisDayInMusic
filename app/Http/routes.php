@@ -16,12 +16,10 @@ $api = app('api.router');
 $api->version(['version' => 'v1'], function ($api) {
     $api->group(['prefix' => 'api'], function ($api) {
 
-        $api->get('users', function () {
-            return ['users' => 'all'];
-        });
-
         $api->get('events', '\ThisDayInMusic\Http\Controllers\EventController@index');
         $api->get('artists', '\ThisDayInMusic\Http\Controllers\ArtistController@index');
+        $api->get('tracks', '\ThisDayInMusic\Http\Controllers\TrackController@index');
+        $api->get('playlists', '\ThisDayInMusic\Http\Controllers\PlaylistController@index');
 
         // $api->get('admin', ['protected' => true, function () {
         //     // This route requires authentication.
