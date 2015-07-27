@@ -20,15 +20,16 @@ $api->version(['version' => 'v1'], function ($api) {
             return ['users' => 'all'];
         });
 
-        $api->get('admin', ['protected' => true, function () {
-            // This route requires authentication.
+        $api->get('events', '\ThisDayInMusic\Http\Controllers\EventController@index');
+        $api->get('artists', '\ThisDayInMusic\Http\Controllers\ArtistController@index');
 
-            $user = app('Dingo\Api\Auth\Auth')->user();
+        // $api->get('admin', ['protected' => true, function () {
+        //     // This route requires authentication.
 
-            return $user;
+        //     $user = app('Dingo\Api\Auth\Auth')->user();
 
-            // return ['admin' => 'all'];
-        }]);
+        //     return $user;
+        // }]);
     });
 });
 
