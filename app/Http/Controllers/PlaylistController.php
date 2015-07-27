@@ -14,11 +14,10 @@ class PlaylistController extends Controller
     public function index(Request $request)
     {
         //
-        $playlists = \ThisDayInMusic\Playlist::paginate($request->input("per_page", config("pagination.per_page")));
-
-        return $this->response->withPaginator(
-            $playlists,
-            new \ThisDayInMusic\Http\Transformers\PlaylistTransformer
+        return parent::listing(
+            $request,
+            \ThisDayInMusic\Playlist::class,
+            \ThisDayInMusic\Http\Transformers\PlaylistTransformer::class
         );
     }
 

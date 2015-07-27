@@ -13,11 +13,10 @@ class ArtistController extends Controller
      */
     public function index(Request $request)
     {
-        $artists = \ThisDayInMusic\Artist::paginate($request->input("per_page", config("pagination.per_page")));
-
-        return $this->response->withPaginator(
-            $artists,
-            new \ThisDayInMusic\Http\Transformers\ArtistTransformer
+        return parent::listing(
+            $request,
+            \ThisDayInMusic\Artist::class,
+            \ThisDayInMusic\Http\Transformers\ArtistTransformer::class
         );
     }
 

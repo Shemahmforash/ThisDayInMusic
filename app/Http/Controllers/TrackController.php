@@ -13,12 +13,10 @@ class TrackController extends Controller
      */
     public function index(Request $request)
     {
-        //
-        $tracks = \ThisDayInMusic\Track::paginate($request->input("per_page", config("pagination.per_page")));
-
-        return $this->response->withPaginator(
-            $tracks,
-            new \ThisDayInMusic\Http\Transformers\TrackTransformer
+        return parent::listing(
+            $request,
+            \ThisDayInMusic\Track::class,
+            \ThisDayInMusic\Http\Transformers\TrackTransformer::class
         );
     }
 

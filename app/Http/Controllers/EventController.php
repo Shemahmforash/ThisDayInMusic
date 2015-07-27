@@ -13,12 +13,10 @@ class EventController extends Controller
      */
     public function index(Request $request)
     {
-        //
-        $events = \ThisDayInMusic\Event::paginate($request->input("per_page", config("pagination.per_page")));
-
-        return $this->response->withPaginator(
-            $events,
-            new \ThisDayInMusic\Http\Transformers\EventTransformer
+        return parent::listing(
+            $request,
+            \ThisDayInMusic\Event::class,
+            \ThisDayInMusic\Http\Transformers\EventTransformer::class
         );
     }
 
