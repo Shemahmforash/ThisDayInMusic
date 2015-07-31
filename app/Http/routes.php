@@ -21,6 +21,8 @@ $api->version(['version' => 'v1'], function ($api) {
         $api->get('tracks', '\ThisDayInMusic\Http\Controllers\TrackController@index');
         $api->get('playlists', '\ThisDayInMusic\Http\Controllers\PlaylistController@index');
 
+        $api->get('artists/{name}', '\ThisDayInMusic\Http\Controllers\ArtistController@findByName');
+
         // $api->get('admin', ['protected' => true, function () {
         //     // This route requires authentication.
 

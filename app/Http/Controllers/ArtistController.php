@@ -20,6 +20,22 @@ class ArtistController extends Controller
         );
     }
 
+    public function findByName($name)
+    {
+        if (!$name) {
+            throw new \Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+        }
+
+        $artist = \ThisDayInMusic\Artist::where('name', '=', $name)->first();
+
+        if (!$artist) {
+            throw new \Symfony\Component\HttpKernel\Exception\NotFoundHttpException("Artist $name not found");
+        }
+
+        return $this->response->item($artist, new \ThisDayInMusic\Http\Transformers\ArtistTransformer);
+
+    }
+
     /**
      * Show the form for creating a new resource.
      *
