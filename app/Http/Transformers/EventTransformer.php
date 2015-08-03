@@ -30,8 +30,10 @@ class EventTransformer extends TransformerAbstract
     public function includeArtist(\ThisDayInMusic\Event $event)
     {
         $artist = $event->artist;
+        if ($artist) {
+            return $this->item($artist, new \ThisDayInMusic\Http\Transformers\ArtistTransformer);
+        }
 
-        return $this->item($artist, new \ThisDayInMusic\Http\Transformers\ArtistTransformer);
     }
 
     public function includeTrack(\ThisDayInMusic\Event $event)
